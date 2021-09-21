@@ -7,31 +7,40 @@ use std::path::PathBuf;
 use regex::Regex;
 use serde_json::Value;
 use zip::ZipArchive;
+use core::fmt;
 
 pub struct Resource {
     id: String,
+    tag_id: String,
     name: String,
-    url: String,
     version: i32,
-    latest_version: i32,
     prefix: String,
 }
 
+impl fmt::Display for Resource {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "[id={}, tag_id={}, name={}, version={}, prefix={}]",
+               self.id,
+               self.tag_id,
+               self.name,
+               self.version,
+               self.prefix,
+        )
+    }
+}
+
 pub fn read(mod_file: PathBuf) -> Resource {
-    let json_data = read_mod_info(mod_file)
+    let json_string = read_mod_info(mod_file)
         .expect("could not read info.json from zip file");
 
-    let v: Value = serde_json::from_str(&json_data).unwrap();
-
-    println!("{}", v["resource_id"]);
+    let info_json: Value = serde_json::from_str(&json_string).unwrap();
 
     return Resource {
-        id: "".to_string(),
-        name: "".to_string(),
-        url: "".to_string(),
-        version: 0,
-        latest_version: 0,
-        prefix: "".to_string(),
+        id: info_json["resource_id"].to_string(),
+        tag_id: info_json["tagid"].to_string(),
+        name: info_json["title"].to_string(),
+        version: info_json["current_version_id"].to_string().parse().unwrap(),
+        prefix: info_json["prefix_title"].to_string(),
     };
 }
 

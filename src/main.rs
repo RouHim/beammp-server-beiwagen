@@ -13,7 +13,10 @@ fn main() {
         .filter(|dir_entry| is_zip_file(&dir_entry))
         .map(|zip_file| fs::canonicalize(zip_file.path()).unwrap())
         .map(|canonicalized_path| resource::read(canonicalized_path))
+        .inspect(|resource| println!("{}", resource))
         .collect();
+
+
 
     // read desired mod list
 
