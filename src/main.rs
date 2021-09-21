@@ -1,6 +1,7 @@
-use std::fs;
-use std::path::PathBuf;
+use std::{fs, io};
 use std::fs::DirEntry;
+use std::path::PathBuf;
+
 use crate::resource::Resource;
 
 mod resource;
