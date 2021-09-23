@@ -1,26 +1,48 @@
-use std::{fs, io};
+use std::{env, fs, io};
 use std::fs::DirEntry;
 use std::path::PathBuf;
 
 use crate::resource::Resource;
+use std::collections::HashMap;
 
 mod resource;
+mod online_resource;
+mod delta_builder;
 
 fn main() {
     // read local available mods
-    let local_mods: Vec<Resource> = fs::read_dir("mods").unwrap()
+    println!("The following mods are local available:");
+    let local_mods: HashMap<u64, Resource> = fs::read_dir("mods").unwrap()
         .map(|dir_entry| dir_entry.unwrap())
         .filter(|dir_entry| is_zip_file(&dir_entry))
         .map(|zip_file| fs::canonicalize(zip_file.path()).unwrap())
-        .map(|canonicalized_path| resource::read(canonicalized_path))
-        .inspect(|resource| println!("{}", resource))
+        .map(|absolute_path| resource::read(absolute_path))
+        .filter(|resource| resource.is_some())
+        .map(|resource| resource.unwrap())
+        .inspect(|resource| println!(" - {}", resource))
+        .map(|entry| (entry.id, entry))
         .collect();
 
-
-
-    // read desired mod list
+    // read desired mod list and look it up online
+    println!("The following mods are online available:");
+    let online_mods_string: HashMap<u64, Resource> = env::var("BEAMMP_MODS")
+        .expect("no BEAMMP_MODS env found")
+        .split(",")
+        .map(|absolute_path| online_resource::read(absolute_path))
+        .filter(|resource| resource.is_some())
+        .map(|resource| resource.unwrap())
+        .inspect(|resource| println!(" - {}", resource))
+        .map(|entry| (entry.id, entry))
+        .collect();
 
     // build delta
+    let to_download = delta_builder::get_to_download(&local_mods, &online_mods_string);
+    let to_remove = delta_builder::get_to_remove();
+
+    println!("To download:");
+    to_download.iter()
+        .inspect(|resource| println!(" - {}", resource))
+        ;
 
     // download missing
 
