@@ -35,16 +35,17 @@ fn main() {
         .map(|entry| (entry.id, entry))
         .collect();
 
-    // build delta
+    // find updated or new mods
     let to_download = delta_builder::get_to_download(&local_mods, &online_mods_string);
+    // find outdated
     let to_remove = delta_builder::get_to_remove();
 
-    println!("To download:");
-    to_download.iter()
-        .inspect(|resource| println!(" - {}", resource))
-        ;
-
     // download missing
+    println!("To download:");
+    let bla = to_download.iter()
+        .inspect(|resource| println!(" - {}", resource))
+        .count()
+        ;
 
     // delete obsolete (not longer wanted or 'Outdated' or 'Unsupported')
 }
