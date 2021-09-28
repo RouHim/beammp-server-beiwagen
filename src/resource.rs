@@ -12,13 +12,24 @@ use zip::ZipArchive;
 
 #[derive(Debug, Hash, Clone)]
 pub struct Resource {
-    pub(crate) id: u64,
-    pub(crate) tag_id: String,
-    pub(crate) name: String,
-    pub(crate) version: u64,
-    pub(crate) prefix: String,
-    pub(crate) filename: String,
-    pub(crate) download_url: String,
+    pub id: u64,
+    pub tag_id: String,
+    pub name: String,
+    pub version: u64,
+    pub prefix: String,
+    pub filename: String,
+    pub download_url: String,
+    // TODO set state
+}
+
+pub enum ResourceState {
+    LocalAvailable,
+    Updated,
+    UpToDate,
+    New,
+    Unwanted,
+    Outdated,
+    Unsupported,
 }
 
 impl PartialEq<Self> for Resource {
@@ -62,7 +73,7 @@ pub fn read(mod_file: PathBuf) -> Option<Resource> {
         version: info_json["current_version_id"].as_u64().unwrap(),
         prefix: info_json["prefix_title"].as_str().unwrap().to_string(),
         filename: info_json["filename"].as_str().unwrap().to_string(),
-        download_url: "".to_string()
+        download_url: "".to_string(),
     });
 }
 

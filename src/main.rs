@@ -1,13 +1,16 @@
 use std::{env, fs, io};
+use std::collections::HashMap;
 use std::fs::DirEntry;
 use std::path::PathBuf;
 
 use crate::resource::Resource;
-use std::collections::HashMap;
 
 mod resource;
 mod online_resource;
 mod delta_builder;
+
+#[cfg(test)]
+mod delta_builder_test;
 
 fn main() {
     // read local available mods
@@ -35,16 +38,22 @@ fn main() {
         .map(|entry| (entry.id, entry))
         .collect();
 
-    // find updated or new mods
-    let to_download = delta_builder::get_to_download(&local_mods, &online_mods_string);
-    // find outdated
-    let to_remove = delta_builder::get_to_remove();
 
-    // download missing
+    // find updated or new mods
     println!("To download:");
-    let bla = to_download.iter()
+    let to_download: Vec<&Resource> = delta_builder::get_to_download(&local_mods, &online_mods_string)
+        .iter()
         .inspect(|resource| println!(" - {}", resource))
-        .count()
+        .collect()
+        ;
+
+    // find updated or new mods
+    println!("To delete:");
+    // download missing
+    let to_delete: Vec<&Resource> = delta_builder::get_to_remove(&local_mods, &online_mods_string)
+        .iter()
+        .inspect(|resource| println!(" - {}", resource))
+        .collect()
         ;
 
     // delete obsolete (not longer wanted or 'Outdated' or 'Unsupported')
