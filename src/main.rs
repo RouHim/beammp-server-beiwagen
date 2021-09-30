@@ -1,7 +1,6 @@
-use std::{env, fs, io};
+use std::{env, fs};
 use std::collections::HashMap;
 use std::fs::DirEntry;
-use std::path::PathBuf;
 
 use crate::resource::Resource;
 
@@ -11,11 +10,15 @@ mod delta_builder;
 
 #[cfg(test)]
 mod delta_builder_test;
+mod file_manager;
 
 fn main() {
+    let client_mods_path: String = env::var("BEAMMP_CLIENT_MODS_DIR")
+        .unwrap_or("mods".to_string());
+
     // read local available mods
     println!("The following mods are local available:");
-    let local_mods: HashMap<u64, Resource> = fs::read_dir("mods").unwrap()
+    let local_mods: HashMap<u64, Resource> = fs::read_dir(&client_mods_path).unwrap()
         .map(|dir_entry| dir_entry.unwrap())
         .filter(|dir_entry| is_zip_file(&dir_entry))
         .map(|zip_file| fs::canonicalize(zip_file.path()).unwrap())
@@ -38,25 +41,20 @@ fn main() {
         .map(|entry| (entry.id, entry))
         .collect();
 
-
     // find updated or new mods
     println!("To download:");
-    let to_download: Vec<&Resource> = delta_builder::get_to_download(&local_mods, &online_mods_string)
+    delta_builder::get_to_download(&local_mods, &online_mods_string)
         .iter()
-        .inspect(|resource| println!(" - {}", resource))
-        .collect()
-        ;
+        .inspect(|resource| println!(" - {}", &resource))
+        .for_each(|resource| file_manager::download(&client_mods_path, resource));
 
     // find updated or new mods
     println!("To delete:");
     // download missing
-    let to_delete: Vec<&Resource> = delta_builder::get_to_remove(&local_mods, &online_mods_string)
+    delta_builder::get_to_remove(&local_mods, &online_mods_string)
         .iter()
         .inspect(|resource| println!(" - {}", resource))
-        .collect()
-        ;
-
-    // delete obsolete (not longer wanted or 'Outdated' or 'Unsupported')
+        .for_each(|resource| file_manager::delete(&client_mods_path, resource));
 }
 
 fn is_zip_file(dir_entry: &DirEntry) -> bool {

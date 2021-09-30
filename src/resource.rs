@@ -1,6 +1,4 @@
 use core::fmt;
-use std::borrow::BorrowMut;
-use std::fmt::Error;
 use std::fs::File;
 use std::io::{BufReader, Read};
 use std::path::PathBuf;
@@ -96,7 +94,7 @@ fn read_content(archive: &mut ZipArchive<BufReader<&File>>, info_json_full_path:
         .expect("filepath not found in zip");
 
     let mut file_content = String::new();
-    info_json_compressed.read_to_string(&mut file_content);
+    info_json_compressed.read_to_string(&mut file_content).expect("Read zip content");
 
     return Ok(file_content);
 }

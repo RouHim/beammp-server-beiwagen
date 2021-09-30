@@ -1,15 +1,4 @@
-use core::fmt;
-use std::borrow::BorrowMut;
-use std::fmt::Error;
-use std::fs::File;
-use std::io::{BufReader, Read};
-use std::path::PathBuf;
-
-use colour::red_ln;
-use regex::Regex;
 use scraper::{Html, Selector};
-use serde_json::Value;
-use zip::ZipArchive;
 
 use crate::resource::Resource;
 
