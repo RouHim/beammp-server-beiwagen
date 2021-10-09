@@ -67,7 +67,14 @@ pub fn read(mod_file: PathBuf) -> Option<Resource> {
 fn read_mod_info(mod_file: &PathBuf) -> Result<String, String> {
     let zip_file_path = mod_file.to_str().unwrap();
     let file = File::open(zip_file_path).unwrap();
-    let mut archive = zip::ZipArchive::new(BufReader::new(&file)).unwrap();
+    let maybe_archive = zip::ZipArchive::new(BufReader::new(&file));
+
+    if maybe_archive.is_err() {
+        std::fs::remove_file(zip_file_path);
+        return Err(("Invalid archive -> deleting it".to_string()));
+    };
+
+    let mut archive = maybe_archive.unwrap();
 
     let info_json_full_path = find_file_path(&mut archive, r"mod_info/.*/info.json");
 
