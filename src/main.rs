@@ -11,7 +11,6 @@ mod delta_builder;
 #[cfg(test)]
 mod delta_builder_test;
 mod file_manager;
-mod hasher;
 
 fn main() {
     let client_mods_path: String = env::var("BEAMMP_CLIENT_MODS_DIR")

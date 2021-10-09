@@ -17,17 +17,6 @@ pub struct Resource {
     pub prefix: String,
     pub filename: String,
     pub download_url: String,
-    // TODO set state
-}
-
-pub enum ResourceState {
-    LocalAvailable,
-    Updated,
-    UpToDate,
-    New,
-    Unwanted,
-    Outdated,
-    Unsupported,
 }
 
 impl PartialEq<Self> for Resource {
