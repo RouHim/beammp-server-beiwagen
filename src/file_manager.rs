@@ -6,6 +6,7 @@ use std::time::Duration;
 
 use isahc::{ReadResponseExt, Request, RequestExt, ResponseExt};
 use isahc::config::{Configurable, RedirectPolicy};
+use isahc::http::HeaderMap;
 use lazy_static::lazy_static;
 use regex::Regex;
 
@@ -17,24 +18,35 @@ pub fn download(target_dir: &String, to_download: &Resource) {
         .body(()).unwrap()
         .send().unwrap();
 
-    // TODO: sometimes the url does not resolve itself,
-    // instead a header property is returned where we can find the filename: 'attachment; filename="autodrom_day.zip"'
-    let resolved_url = head.effective_uri().unwrap().to_string();
-    println!("url: {}", &resolved_url);
-
-    let filename = parse_filename(&resolved_url);
-    println!("filename: {}",  &filename);
+    // If the header does not contain the filename, parse it from the resolved url
+    let filename = if head.headers().contains_key("content-disposition") {
+        parse_header(head.headers())
+    } else {
+        parse_filename(&head.effective_uri().unwrap().to_string())
+    };
 
     let mut resource_file_path = PathBuf::from(&target_dir);
     resource_file_path.push(&filename);
 
-    // TODO: runs on timeout sometimes (50/50)
     Request::get(&to_download.download_url)
         .timeout(Duration::from_secs(60))
         .redirect_policy(RedirectPolicy::Limit(1))
         .body(()).unwrap()
         .send().unwrap()
         .copy_to_file(resource_file_path);
+}
+
+fn parse_header(headers: &HeaderMap) -> String {
+    lazy_static! {
+        static ref HEAD_PATTERN: Regex = Regex::new("attachment; filename=\"(?P<filename>.*)\"").unwrap();
+
+    }
+    let content_disposition = headers.get("content-disposition")
+        .expect("content-disposition not set")
+        .to_str().unwrap().to_string();
+    let caps = HEAD_PATTERN.captures(&content_disposition).unwrap();
+    caps.name("filename").unwrap()
+        .as_str().to_string()
 }
 
 fn parse_filename(url_string: &String) -> String {

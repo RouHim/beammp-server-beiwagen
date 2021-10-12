@@ -16,41 +16,36 @@ fn main() {
     let client_mods_path: String = env::var("BEAMMP_CLIENT_MODS_DIR")
         .unwrap_or("mods".to_string());
 
-    // read local available mods
-    println!("The following mods are local available:");
+    // read all local available mods
+    println!("Local mods:");
     let local_mods: HashMap<u64, Resource> = fs::read_dir(&client_mods_path).unwrap()
         .map(|dir_entry| dir_entry.unwrap())
         .filter(|dir_entry| is_zip_file(&dir_entry))
         .map(|zip_file| fs::canonicalize(zip_file.path()).unwrap())
-        .map(|absolute_path| resource::read(absolute_path))
-        .filter(|resource| resource.is_some())
-        .map(|resource| resource.unwrap())
+        .filter_map(|absolute_path| resource::read(absolute_path))
         .inspect(|resource| println!(" - {}", resource))
         .map(|entry| (entry.id, entry))
         .collect();
 
-    // read desired mod list and look it up online
-    println!("The following mods are online available:");
+    // read desired mod list and look it up on beamng.com/resources
+    println!("Mods wanted:");
     let online_mods_string: HashMap<u64, Resource> = env::var("BEAMMP_MODS")
         .expect("no BEAMMP_MODS env found")
         .split(",")
-        .map(|absolute_path| online_resource::read(absolute_path))
-        .filter(|resource| resource.is_some())
-        .map(|resource| resource.unwrap())
+        .filter_map(|mod_id| online_resource::read(mod_id))
         .inspect(|resource| println!(" - {}", resource))
         .map(|entry| (entry.id, entry))
         .collect();
 
     // find updated or new mods
-    println!("To download:");
+    println!("Downloading missing or updated mods:");
     delta_builder::get_to_download(&local_mods, &online_mods_string)
         .iter()
         .inspect(|resource| println!(" - {}", &resource))
         .for_each(|resource| file_manager::download(&client_mods_path, resource));
 
-    // find updated or new mods
-    println!("To delete:");
-    // download missing
+    // delete no longer needed mods
+    println!("Deleting no longer needed mods:");
     delta_builder::get_to_remove(&local_mods, &online_mods_string)
         .iter()
         .inspect(|resource| println!(" - {}", resource))
