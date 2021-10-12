@@ -1,8 +1,15 @@
 use std::collections::HashMap;
 use std::env;
 
-use crate::resource::Resource;
+use crate::Resource;
 
+/// Builds a delta list of mods to download, based on the local available and remote available mods.
+///
+/// `local_list` contains local available mods
+///
+/// `remote_list` contains wanted remote online available mods
+///
+/// `returns` a vector of mods that needs to be downloaded
 pub fn get_to_download(local_list: &HashMap<u64, Resource>, remote_list: &HashMap<u64, Resource>) -> Vec<Resource> {
     let new_entries: Vec<Resource> = remote_list
         .iter()
@@ -26,6 +33,13 @@ pub fn get_to_download(local_list: &HashMap<u64, Resource>, remote_list: &HashMa
     to_download
 }
 
+/// Builds a list of mods that should be deleted, based on the local available and remote available mods.
+///
+/// `local_list` contains local available mods
+///
+/// `remote_list` contains wanted remote online available mods
+///
+/// `returns` a vector of mods that needs to be deleted
 pub fn get_to_remove(local_list: &HashMap<u64, Resource>, remote_list: &HashMap<u64, Resource>) -> Vec<Resource> {
     let deleted_entries: Vec<Resource> = local_list
         .iter()
@@ -53,28 +67,57 @@ pub fn get_to_remove(local_list: &HashMap<u64, Resource>, remote_list: &HashMap<
     to_delete
 }
 
+/// Checks if the passed resource should be deleted.
+///
+/// returns `true` if `OUTDATED` is set to `delete`
+///         AND the resource prefix is set to `Outdated`,
+///         otherwise `false`.
+///
+/// Check `delta_builder_test.rs` for example usages
 fn should_delete_outdated(val: &Resource) -> bool {
     is_env_var("OUTDATED", "delete")
         && val.prefix.eq_ignore_ascii_case("Outdated")
 }
 
+/// Checks if the passed resource should be deleted.
+///
+/// returns `true` if `UNSUPPORTED` is set to `delete`
+///         AND the resource prefix is set to `Unsupported`,
+///         otherwise `false`.
+///
+/// Check `delta_builder_test.rs` for example usages
 fn should_delete_unsupported(val: &Resource) -> bool {
     is_env_var("UNSUPPORTED", "delete")
         && val.prefix.eq_ignore_ascii_case("Unsupported")
 }
 
+/// Checks if the passed resource should be skipped when downloading.
+///
+/// returns `true` if `OUTDATED` is set to `delete` or `skip`
+///         AND the resource prefix is set to `Outdated`,
+///         otherwise `false`.
+///
+/// Check `delta_builder_test.rs` for example usages
 fn should_skip_outdated(val: &Resource) -> bool {
     (is_env_var("OUTDATED", "delete")
         || is_env_var("OUTDATED", "skip"))
         && val.prefix.eq_ignore_ascii_case("Outdated")
 }
 
+/// Checks if the passed resource should be skipped when downloading.
+///
+/// returns `true` if `UNSUPPORTED` is set to `delete` or `skip`
+///         AND the resource prefix is set to `Unsupported`,
+///         otherwise `false`.
+///
+/// Check `delta_builder_test.rs` for example usages
 fn should_skip_unsupported(val: &Resource) -> bool {
     (is_env_var("UNSUPPORTED", "delete")
         || is_env_var("UNSUPPORTED", "skip"))
         && val.prefix.eq_ignore_ascii_case("Unsupported")
 }
 
+/// returns `true` if the env var specified by `env_name` is set to the value specified in `env_value`.
 fn is_env_var(env_name: &str, env_value: &str) -> bool {
     let env_var = env::var(env_name);
     env_var.is_ok()

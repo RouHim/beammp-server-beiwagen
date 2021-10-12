@@ -2,8 +2,9 @@ use isahc::{ReadResponseExt, Request, RequestExt};
 use isahc::config::{Configurable, RedirectPolicy};
 use scraper::{Html, Selector};
 
-use crate::resource::Resource;
+use crate::Resource;
 
+/// Retrieves all meta information of an online available mod resource by the passed `mod_id`.
 pub fn read(mod_id: &str) -> Option<Resource> {
     let mod_url = format!("https://www.beamng.com/resources/{}", mod_id);
 
@@ -16,11 +17,11 @@ pub fn read(mod_id: &str) -> Option<Resource> {
     let document = Html::parse_document(response_html.as_str());
 
     let id: u64 = mod_id.parse().unwrap();
-    let tag_id = select_tag_id(&document);
-    let name = select_name(&document);
-    let version = parse_version(&document);
-    let download_url = build_download_url(&id, &version);
-    let prefix = select_prefix(&document);
+    let tag_id = get_tag_id(&document);
+    let name = get_name(&document);
+    let version = get_version(&document);
+    let download_url = get_download_url(&id, &version);
+    let prefix = get_prefix(&document);
     let filename = "".to_string();
 
     return Some(Resource {
@@ -34,7 +35,8 @@ pub fn read(mod_id: &str) -> Option<Resource> {
     });
 }
 
-fn select_prefix(html: &Html) -> String {
+/// Returns the mod prefix of the html document
+fn get_prefix(html: &Html) -> String {
     let selector = Selector::parse("h1 > span.prefix").unwrap();
     let selection = html.select(&selector)
         .nth(0);
@@ -47,7 +49,8 @@ fn select_prefix(html: &Html) -> String {
         .inner_html();
 }
 
-fn parse_version(html: &Html) -> u64 {
+/// Parses the mod `version` out of the html document.
+fn get_version(html: &Html) -> u64 {
     let selector = Selector::parse("label.downloadButton > a").unwrap();
 
     let selection = html.select(&selector)
@@ -64,7 +67,8 @@ fn parse_version(html: &Html) -> u64 {
         .parse().unwrap()
 }
 
-fn build_download_url(id: &u64, version: &u64) -> String {
+/// Builds the download url based on `id` and `version` of the mod.
+fn get_download_url(id: &u64, version: &u64) -> String {
     format!(
         "https://www.beamng.com/resources/{}/download?version={}",
         id,
@@ -72,7 +76,8 @@ fn build_download_url(id: &u64, version: &u64) -> String {
     )
 }
 
-fn select_name(html: &Html) -> String {
+/// Parses the mod `name` out of the passed html document.
+fn get_name(html: &Html) -> String {
     let selector = Selector::parse("head > title").unwrap();
     let selection = html.select(&selector).nth(0);
     let title = selection.unwrap().inner_html();
@@ -90,7 +95,8 @@ fn select_name(html: &Html) -> String {
         .trim().to_string()
 }
 
-fn select_tag_id(html: &Html) -> String {
+/// Parses the mod `tag_id` out of the html document.
+fn get_tag_id(html: &Html) -> String {
     let selector = Selector::parse("div#resourceInfo dl").unwrap();
     let selection = html.select(&selector);
     let tag_id_html_row = selection.into_iter()

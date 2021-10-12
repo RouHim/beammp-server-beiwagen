@@ -1,10 +1,8 @@
-use std::{env, fs};
+use std::{env, fmt, fs};
 use std::collections::HashMap;
 use std::fs::DirEntry;
 
-use crate::resource::Resource;
-
-mod resource;
+mod local_resource;
 mod online_resource;
 mod delta_builder;
 
@@ -13,16 +11,15 @@ mod delta_builder_test;
 mod file_manager;
 
 fn main() {
+    // read all local available mods from the BEAMMP_CLIENT_MODS_DIR directory
+    println!("Local mods:");
     let client_mods_path: String = env::var("BEAMMP_CLIENT_MODS_DIR")
         .unwrap_or("mods".to_string());
-
-    // read all local available mods
-    println!("Local mods:");
     let local_mods: HashMap<u64, Resource> = fs::read_dir(&client_mods_path).unwrap()
         .map(|dir_entry| dir_entry.unwrap())
         .filter(|dir_entry| is_zip_file(&dir_entry))
         .map(|zip_file| fs::canonicalize(zip_file.path()).unwrap())
-        .filter_map(|absolute_path| resource::read(absolute_path))
+        .filter_map(|absolute_path| local_resource::read(absolute_path))
         .inspect(|resource| println!(" - {}", resource))
         .map(|entry| (entry.id, entry))
         .collect();
@@ -52,8 +49,43 @@ fn main() {
         .for_each(|resource| file_manager::delete(&client_mods_path, resource));
 }
 
+/// Checks if the passed entry is a zip file.
 fn is_zip_file(dir_entry: &DirEntry) -> bool {
     let is_file = dir_entry.file_type().unwrap().is_file();
     let is_zip = dir_entry.file_name().to_str().unwrap().ends_with(".zip");
     is_file && is_zip
+}
+
+/// Represents a BeamNG mod resource with its metadata.
+#[derive(Debug, Hash, Clone)]
+pub struct Resource {
+    pub id: u64,
+    pub tag_id: String,
+    pub name: String,
+    pub version: u64,
+    pub prefix: String,
+    pub filename: String,
+    pub download_url: String,
+}
+
+/// Implement the `PartialEq` trait for `[Resource]` struct.
+impl PartialEq<Self> for Resource {
+    fn eq(&self, other: &Self) -> bool {
+        return self.id.eq(&other.id);
+    }
+}
+
+/// Implement the `Display` trait for `[Resource]` struct.
+impl fmt::Display for Resource {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "[id={}, tag_id={}, name={}, version={}, prefix={}, filename={}, download_url={}]",
+               self.id,
+               self.tag_id,
+               self.name,
+               self.version,
+               self.prefix,
+               self.filename,
+               self.download_url,
+        )
+    }
 }

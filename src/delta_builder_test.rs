@@ -4,7 +4,7 @@ use std::env;
 use assertor::*;
 
 use crate::delta_builder;
-use crate::resource::Resource;
+use crate::Resource;
 
 #[test]
 fn to_download_all() {

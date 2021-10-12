@@ -7,8 +7,9 @@ use isahc::http::HeaderMap;
 use lazy_static::lazy_static;
 use regex::Regex;
 
-use crate::resource::Resource;
+use crate::Resource;
 
+/// Downloads a resource to the specified directory.
 pub fn download(target_dir: &String, to_download: &Resource) {
     let head = Request::head(&to_download.download_url)
         .redirect_policy(RedirectPolicy::Follow)
@@ -17,9 +18,9 @@ pub fn download(target_dir: &String, to_download: &Resource) {
 
     // If the header does not contain the filename, parse it from the resolved url
     let filename = if head.headers().contains_key("content-disposition") {
-        parse_header(head.headers())
+        get_filename_from_headers(head.headers())
     } else {
-        parse_filename(&head.effective_uri().unwrap().to_string())
+        get_filename_frim_url(&head.effective_uri().unwrap().to_string())
     };
 
     let mut resource_file_path = PathBuf::from(&target_dir);
@@ -34,7 +35,8 @@ pub fn download(target_dir: &String, to_download: &Resource) {
         .expect(format!("error downloading file {}", &to_download.download_url).as_str());
 }
 
-fn parse_header(headers: &HeaderMap) -> String {
+/// Parses the filename from the `content-disposition` header attribute value.
+fn get_filename_from_headers(headers: &HeaderMap) -> String {
     lazy_static! {
         static ref HEAD_PATTERN: Regex = Regex::new("attachment; filename=\"(?P<filename>.*)\"").unwrap();
 
@@ -47,7 +49,8 @@ fn parse_header(headers: &HeaderMap) -> String {
         .as_str().to_string()
 }
 
-fn parse_filename(url_string: &String) -> String {
+/// Parses the filename out of the passed `url_string`.
+fn get_filename_frim_url(url_string: &String) -> String {
     lazy_static! {
         static ref URL_PATTERN: Regex = Regex::new(r"https://cdn\d*\.beamng\.com/mods/.*/\d*/(?P<filename>.*\.zip)\?md5=(?P<md5>.*)&expires=\d*").unwrap();
     }
@@ -55,6 +58,7 @@ fn parse_filename(url_string: &String) -> String {
     caps.name("filename").unwrap().as_str().to_string()
 }
 
+/// Deletes the specified `to_delete` resource file located in the the passed `target_dir`.
 pub fn delete(target_dir: &String, to_delete: &Resource) {
     let mut resource_file_path = PathBuf::from(&target_dir);
     resource_file_path.push(&to_delete.filename);
