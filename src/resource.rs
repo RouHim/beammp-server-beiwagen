@@ -70,8 +70,8 @@ fn read_mod_info(mod_file: &PathBuf) -> Result<String, String> {
     let maybe_archive = zip::ZipArchive::new(BufReader::new(&file));
 
     if maybe_archive.is_err() {
-        std::fs::remove_file(zip_file_path);
-        return Err(("Invalid archive -> deleting it".to_string()));
+        std::fs::remove_file(zip_file_path).expect("could not delete");
+        return Err("Invalid archive -> deleting it".to_string());
     };
 
     let mut archive = maybe_archive.unwrap();

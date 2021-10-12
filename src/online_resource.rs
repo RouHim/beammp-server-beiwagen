@@ -1,6 +1,6 @@
-use scraper::{Html, Selector};
 use isahc::{ReadResponseExt, Request, RequestExt};
 use isahc::config::{Configurable, RedirectPolicy};
+use scraper::{Html, Selector};
 
 use crate::resource::Resource;
 

@@ -1,6 +1,3 @@
-use std::env;
-use std::fs::File;
-use std::io::{Read, Write};
 use std::path::PathBuf;
 use std::time::Duration;
 
@@ -13,7 +10,7 @@ use regex::Regex;
 use crate::resource::Resource;
 
 pub fn download(target_dir: &String, to_download: &Resource) {
-    let mut head = Request::head(&to_download.download_url)
+    let head = Request::head(&to_download.download_url)
         .redirect_policy(RedirectPolicy::Follow)
         .body(()).unwrap()
         .send().unwrap();
@@ -33,7 +30,8 @@ pub fn download(target_dir: &String, to_download: &Resource) {
         .redirect_policy(RedirectPolicy::Limit(1))
         .body(()).unwrap()
         .send().unwrap()
-        .copy_to_file(resource_file_path);
+        .copy_to_file(resource_file_path)
+        .expect(format!("error downloading file {}", &to_download.download_url).as_str());
 }
 
 fn parse_header(headers: &HeaderMap) -> String {
@@ -60,5 +58,6 @@ fn parse_filename(url_string: &String) -> String {
 pub fn delete(target_dir: &String, to_delete: &Resource) {
     let mut resource_file_path = PathBuf::from(&target_dir);
     resource_file_path.push(&to_delete.filename);
-    std::fs::remove_file(resource_file_path);
+    std::fs::remove_file(&resource_file_path)
+        .expect(format!("error deleting file {}", &resource_file_path.to_str().unwrap()).as_str());
 }
