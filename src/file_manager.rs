@@ -78,6 +78,9 @@ pub fn delete(target_dir: &String, to_delete: &Resource) {
         .expect(format!("error deleting file {}", &resource_file_path.to_str().unwrap()).as_str());
 }
 
+/// Downloads the specified url to the specified target_file
+///
+/// Retries the downloads by using a backoff mechanism
 fn download_to_file(url: &str, target_file: &PathBuf) -> bool {
     let content_length: u64 = Request::head(url)
         .redirect_policy(RedirectPolicy::Follow)
@@ -88,7 +91,7 @@ fn download_to_file(url: &str, target_file: &PathBuf) -> bool {
     let fetch_operation = || {
         println!("Fetching {} content-length: {}MB", url, content_length / 1024 / 1024);
         Request::get(url)
-            .timeout(Duration::from_secs(60))
+            .timeout(Duration::from_secs(30))
             .redirect_policy(RedirectPolicy::Follow)
             .body(()).unwrap()
             .send()
