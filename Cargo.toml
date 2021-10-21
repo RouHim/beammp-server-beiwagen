@@ -11,6 +11,7 @@ colour = "0.6"
 isahc = "1.5"
 lazy_static = "1.4"
 scraper = "0.12"
+backoff = "0.3"
 
 [dev-dependencies]
 assertor = "0.0"
