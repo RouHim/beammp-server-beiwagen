@@ -2,6 +2,8 @@ use std::{env, fmt, fs};
 use std::collections::HashMap;
 use std::fs::DirEntry;
 
+use indicatif::ParallelProgressIterator;
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use rayon::prelude::*;
 
 mod local_resource;
@@ -43,8 +45,8 @@ fn main() {
     // TODO: pretty print with a progress bar: https://docs.rs/indicatif
     println!("Downloading missing or updated mods:");
     delta_builder::get_to_download(&local_mods, &online_mods_string)
-        .par_iter()
-        .inspect(|resource| println!(" - {}", &resource))
+        .par_iter().progress_count(local_mods.len() as u64)
+        // .inspect(|resource| println!(" - {}", &resource))
         .for_each(|resource| file_manager::download(&client_mods_path, resource));
 
     // delete no longer needed mods

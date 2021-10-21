@@ -13,6 +13,7 @@ lazy_static = "1.4"
 scraper = "0.12"
 rayon = "1.5.1"
 backoff = "0.3"
+indicatif = { version = "0.16", features = ["rayon"] }
 
 [dev-dependencies]
 assertor = "0.0"
