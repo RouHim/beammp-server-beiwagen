@@ -1,7 +1,7 @@
 [package]
 name = "beammp-server-beiwagen"
 version = "0.1.0"
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 zip = "0.5"
@@ -11,6 +11,7 @@ colour = "0.6"
 isahc = "1.5"
 lazy_static = "1.4"
 scraper = "0.12"
+rayon = "1.5.1"
 backoff = "0.3"
 
 [dev-dependencies]

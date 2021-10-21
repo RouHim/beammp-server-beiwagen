@@ -2,6 +2,8 @@ use std::{env, fmt, fs};
 use std::collections::HashMap;
 use std::fs::DirEntry;
 
+use rayon::prelude::*;
+
 mod local_resource;
 mod online_resource;
 mod delta_builder;
@@ -26,20 +28,22 @@ fn main() {
 
     // read desired mod list and look it up on beamng.com/resources
     println!("Mods wanted:");
-    let online_mods_string: HashMap<u64, Resource> = env::var("BEAMMP_MODS")
+    let wanted_mods: Vec<String> = env::var("BEAMMP_MODS")
         .expect("no BEAMMP_MODS env found")
         .split(",")
+        .map(|entry| entry.to_string())
+        .collect();
+    let online_mods_string: HashMap<u64, Resource> = wanted_mods.par_iter()
         .filter_map(|mod_id| online_resource::read(mod_id))
         .inspect(|resource| println!(" - {}", resource))
         .map(|entry| (entry.id, entry))
         .collect();
 
     // find updated or new mods
-    // TODO: parallelize downloads to improve update speed
     // TODO: pretty print with a progress bar: https://docs.rs/indicatif
     println!("Downloading missing or updated mods:");
     delta_builder::get_to_download(&local_mods, &online_mods_string)
-        .iter()
+        .par_iter()
         .inspect(|resource| println!(" - {}", &resource))
         .for_each(|resource| file_manager::download(&client_mods_path, resource));
 

@@ -2,6 +2,7 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 use backoff::ExponentialBackoff;
+use colour::red_ln;
 use isahc::{Body, ReadResponseExt, Request, RequestExt, Response, ResponseExt};
 use isahc::config::{Configurable, RedirectPolicy};
 use isahc::http::HeaderMap;
@@ -22,11 +23,14 @@ pub fn download(target_dir: &String, to_download: &Resource) {
     let resource_file_path = get_absolute_filename(target_dir, &head);
 
     // Actually download the file
-    // TODO: this fails sometimes, add a retry mechanism: https://docs.rs/retry or https://docs.rs/backoff
-    let response = fetch_url(&to_download.download_url);
-    response.unwrap()
-        .copy_to_file(resource_file_path)
-        .expect(format!("error downloading file {}", &to_download.download_url).as_str());
+    let download_failed = download_to_file(&to_download.download_url, &resource_file_path);
+    if download_failed {
+        red_ln!(
+            " -  download failed for {} -> {}",
+            &to_download.download_url,
+            &resource_file_path.to_str().unwrap()
+        );
+    }
 }
 
 /// Determines the file name of the online resource http header response.
@@ -48,7 +52,6 @@ fn get_absolute_filename(target_dir: &String, head: &Response<Body>) -> PathBuf 
 fn get_filename_from_headers(headers: &HeaderMap) -> String {
     lazy_static! {
         static ref HEAD_PATTERN: Regex = Regex::new("attachment; filename=\"(?P<filename>.*)\"").unwrap();
-
     }
     let content_disposition = headers.get("content-disposition")
         .expect("content-disposition not set")
@@ -75,16 +78,25 @@ pub fn delete(target_dir: &String, to_delete: &Resource) {
         .expect(format!("error deleting file {}", &resource_file_path.to_str().unwrap()).as_str());
 }
 
-fn fetch_url(url: &str) -> Result<isahc::Response<Body>, backoff::Error<isahc::Error>> {
+fn download_to_file(url: &str, target_file: &PathBuf) -> bool {
+    let content_length: u64 = Request::head(url)
+        .redirect_policy(RedirectPolicy::Follow)
+        .body(()).unwrap()
+        .send().unwrap()
+        .headers().get("content-length").unwrap().to_str().unwrap().parse().unwrap();
+
     let fetch_operation = || {
-        println!("Fetching {}", url);
+        println!("Fetching {} content-length: {}MB", url, content_length / 1024 / 1024);
         Request::get(url)
-            .timeout(Duration::from_secs(30))
+            .timeout(Duration::from_secs(60))
             .redirect_policy(RedirectPolicy::Follow)
             .body(()).unwrap()
             .send()
+            .unwrap()
+            .copy_to_file(target_file)
             .map_err(|err| backoff::Error::from(err))
     };
 
     backoff::retry(ExponentialBackoff::default(), fetch_operation)
+        .is_err()
 }
