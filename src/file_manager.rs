@@ -20,31 +20,15 @@ pub fn download(mp: &MultiProgress, pb_download: &ProgressBar, target_dir: &Stri
     // Determines the absolute file path to download the resource to.
     let resource_file_path = get_absolute_filename(target_dir, &head_response);
 
-    // Determines content length
-    let content_length: u64 = head_response.headers()
-        .get("content-length").unwrap()
-        .to_str().unwrap()
-        .parse().unwrap();
-
-    // Use a spinner to ident progress
-    let bg_bar = mp.add(
-        ProgressBar::new(content_length.clone())
-            .with_message(to_download.name.clone())
-            .with_style(ProgressStyle::default_bar()
-                .template("[{bar:.cyan/blue}] {bytes}/{total_bytes} @ {bytes_per_sec} {eta} {msg:.cyan}")
-                .progress_chars("##-"))
-    );
-
     // Actually download the file
     download_to_file(
         head_response.url().to_string(),
         &resource_file_path,
-        content_length,
-        &bg_bar,
+        mp,
+        to_download.name.clone(),
     );
 
     pb_download.inc(1);
-    bg_bar.finish_and_clear();
 }
 
 /// Determines the file name of the online resource http header response.
@@ -92,28 +76,40 @@ pub fn delete(target_dir: &String, to_delete: &Resource) {
         .expect(format!("error deleting file {}", &resource_file_path.to_str().unwrap()).as_str());
 }
 
-/// Downloads the specified url to the specified target_file
-fn download_to_file(url: String, target_file: &PathBuf, content_length: u64, pb_bar: &ProgressBar) {
-    let mut total_buffer = Vec::new();
-    let mut web_response = reqwest::blocking::get(&url).unwrap();
-    let buffer_size: usize = (content_length / 99) as usize;
+/// Downloads the specified url to the specified target_file and shows a progress bar
+fn download_to_file(url: String, target_file: &PathBuf, mp: &MultiProgress, visual_name: String) {
+    let mut get_response = reqwest::blocking::get(&url).unwrap();
+    let content_size = get_response.content_length().unwrap();
 
+    // Use a progress bar to ident download progress
+    let dl_bar = mp.add(
+        ProgressBar::new(content_size)
+            .with_message(visual_name)
+            .with_style(ProgressStyle::default_bar()
+                .template("[{bar:.cyan/blue}] {bytes}/{total_bytes} @ {bytes_per_sec} {eta} {msg:.cyan}")
+                .progress_chars("##-"))
+    );
+
+    // Download the data chunk-wise to a byte vector
+    let buffer_size: usize = (content_size as usize) / 99;
+    let mut total_buffer = Vec::new();
     loop {
         let mut buffer = vec![0; buffer_size];
-        let buffer_size = web_response.read(&mut buffer[..]).unwrap();
+        let buffer_size = get_response.read(&mut buffer[..]).unwrap();
         buffer.truncate(buffer_size);
         if !buffer.is_empty() {
             total_buffer.extend(buffer.into_boxed_slice()
                 .into_vec().iter()
                 .cloned());
-            pb_bar.inc(buffer_size as u64);
+            dl_bar.inc(buffer_size as u64);
         } else {
             break;
         }
     }
 
+    // Flush the collected data to a file
     File::create(&target_file).unwrap()
         .write_all(&total_buffer).unwrap();
 
-    pb_bar.finish();
+    dl_bar.finish_and_clear();
 }
