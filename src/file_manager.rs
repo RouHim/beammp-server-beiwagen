@@ -1,49 +1,60 @@
+use std::fs::File;
+use std::io::{Read, Write};
 use std::path::PathBuf;
-use std::time::Duration;
 
-use colour::red_ln;
-use isahc::{Body, ReadResponseExt, Request, RequestExt, Response, ResponseExt};
-use isahc::config::{Configurable, RedirectPolicy};
-use isahc::http::HeaderMap;
+use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use lazy_static::lazy_static;
 use regex::Regex;
+use reqwest::blocking::Response;
+use reqwest::header::HeaderMap;
 
 use crate::Resource;
 
 /// Downloads a resource to the specified directory.
-pub fn download(target_dir: &String, to_download: &Resource) {
+pub fn download(mp: &MultiProgress, pb_download: &ProgressBar, target_dir: &String, to_download: &Resource) {
     // Do a HEAD request to gain meta information about the file to download
-    let head_response = Request::head(&to_download.download_url)
-        .redirect_policy(RedirectPolicy::Follow)
-        .body(()).unwrap()
+    let client = reqwest::blocking::Client::new();
+    let head_response = client.head(&to_download.download_url)
         .send().unwrap();
 
     // Determines the absolute file path to download the resource to.
     let resource_file_path = get_absolute_filename(target_dir, &head_response);
 
-    // Actually download the file
-    let download_failed = download_to_file(
-        head_response.effective_uri().unwrap().to_string(),
-        &resource_file_path,
+    // Determines content length
+    let content_length: u64 = head_response.headers()
+        .get("content-length").unwrap()
+        .to_str().unwrap()
+        .parse().unwrap();
+
+    // Use a spinner to ident progress
+    let bg_bar = mp.add(
+        ProgressBar::new(content_length.clone())
+            .with_message(to_download.name.clone())
+            .with_style(ProgressStyle::default_bar()
+                .template("[{bar:.cyan/blue}] {bytes}/{total_bytes} @ {bytes_per_sec} {eta} {msg:.cyan}")
+                .progress_chars("##-"))
     );
 
-    if download_failed {
-        red_ln!(
-            " -  download failed for {} -> {}",
-            &to_download.download_url,
-            &resource_file_path.to_str().unwrap()
-        );
-    }
+    // Actually download the file
+    download_to_file(
+        head_response.url().to_string(),
+        &resource_file_path,
+        content_length,
+        &bg_bar,
+    );
+
+    pb_download.inc(1);
+    bg_bar.finish_and_clear();
 }
 
 /// Determines the file name of the online resource http header response.
 ///
 /// If the header does not contain the filename, parse it from the resolved url
-fn get_absolute_filename(target_dir: &String, head: &Response<Body>) -> PathBuf {
-    let filename = if head.headers().contains_key("content-disposition") {
-        get_filename_from_headers(head.headers())
+fn get_absolute_filename(target_dir: &String, head_response: &Response) -> PathBuf {
+    let filename = if head_response.headers().contains_key("content-disposition") {
+        get_filename_from_headers(head_response.headers())
     } else {
-        get_filename_from_url(&head.effective_uri().unwrap().to_string())
+        get_filename_from_url(&head_response.url().to_string())
     };
 
     let mut resource_file_path = PathBuf::from(&target_dir);
@@ -82,10 +93,27 @@ pub fn delete(target_dir: &String, to_delete: &Resource) {
 }
 
 /// Downloads the specified url to the specified target_file
-///
-/// Retries the downloads by using a backoff mechanism
-fn download_to_file(url: String, target_file: &PathBuf) -> bool {
-    isahc::get(&url).unwrap()
-        .copy_to_file(target_file)
-        .is_err()
+fn download_to_file(url: String, target_file: &PathBuf, content_length: u64, pb_bar: &ProgressBar) {
+    let mut total_buffer = Vec::new();
+    let mut web_response = reqwest::blocking::get(&url).unwrap();
+    let buffer_size: usize = (content_length / 99) as usize;
+
+    loop {
+        let mut buffer = vec![0; buffer_size];
+        let buffer_size = web_response.read(&mut buffer[..]).unwrap();
+        buffer.truncate(buffer_size);
+        if !buffer.is_empty() {
+            total_buffer.extend(buffer.into_boxed_slice()
+                .into_vec().iter()
+                .cloned());
+            pb_bar.inc(buffer_size as u64);
+        } else {
+            break;
+        }
+    }
+
+    File::create(&target_file).unwrap()
+        .write_all(&total_buffer).unwrap();
+
+    pb_bar.finish();
 }

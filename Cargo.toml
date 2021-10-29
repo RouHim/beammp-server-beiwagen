@@ -8,11 +8,11 @@ zip = "0.5"
 regex = "1.5"
 serde_json = "1.0"
 colour = "0.6"
-isahc = "1.5"
 lazy_static = "1.4"
 scraper = "0.12"
-rayon = "1.5.1"
-indicatif = { version = "0.16", features = ["rayon"] }
+rayon = "1.5"
+indicatif = { version = "0.17.0-beta.1", features = ["rayon", "improved_unicode"] }
+reqwest = { version = "0.11", features = ["blocking"] }
 
 [dev-dependencies]
 assertor = "0.0"

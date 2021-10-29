@@ -1,5 +1,3 @@
-use isahc::{ReadResponseExt, Request, RequestExt};
-use isahc::config::{Configurable, RedirectPolicy};
 use scraper::{Html, Selector};
 
 use crate::Resource;
@@ -8,10 +6,7 @@ use crate::Resource;
 pub fn read(mod_id: &str) -> Option<Resource> {
     let mod_url = format!("https://www.beamng.com/resources/{}", mod_id);
 
-    let mut response = Request::get(mod_url)
-        .redirect_policy(RedirectPolicy::Follow)
-        .body(()).unwrap()
-        .send().unwrap();
+    let response = reqwest::blocking::get(&mod_url).unwrap();
 
     let response_html = response.text().unwrap();
     let document = Html::parse_document(response_html.as_str());
