@@ -1,10 +1,13 @@
+# Enable strip feature
+cargo-features = ["strip"]
+
 [package]
 name = "beammp-server-beiwagen"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-zip = "0.5"
+zip = { version = "0.5", default-features = false } # disables bzip2 feature
 regex = "1.5"
 serde_json = "1.0"
 colour = "0.6"
@@ -12,9 +15,13 @@ lazy_static = "1.4"
 scraper = "0.12"
 rayon = "1.5"
 indicatif = { version = "0.17.0-beta.1", features = ["rayon", "improved_unicode"] }
-reqwest = { version = "0.11", features = ["blocking"] }
+reqwest = { version = "0.11", features = ["blocking"] } # No need to make asynchron calls
+openssl = { version = "0.10", features = ["vendored"] } # vendored needed for armv7 and arm64 cross build
 
 [dev-dependencies]
 assertor = "0.0"
 pretty_assertions = "0.7"
 
+# Strip debug symbols in release mode
+[profile.release]
+strip = "symbols"

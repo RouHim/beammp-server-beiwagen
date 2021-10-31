@@ -13,6 +13,8 @@ The _beiwagen_ application is optionally integrated int the `rouhim/beammp-serve
 of your desired mods, defined as environment variables. This happens before the actual server starts. The docker
 behavior is identical to the vanilla container, apart from the optional automatic updates.
 
+> Sadly this is not compileable to ARMv7.
+
 ### Parameter
 
 The parameter `BW_CLIENT_MODS_DIR` is already set in the `rouhim/beammp-server` image, if it is used as a standalone
