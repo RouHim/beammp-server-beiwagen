@@ -14,7 +14,7 @@ mod delta_builder_test;
 mod file_manager;
 
 fn main() {
-    let local_mods_path: String = env::var("BEAMMP_CLIENT_MODS_DIR")
+    let local_mods_path: String = env::var("BW_CLIENT_MODS_DIR")
         .unwrap_or("mods".to_string());
 
     let local_mods = analyse_local_mods(&local_mods_path);
@@ -64,13 +64,13 @@ fn download_mods(local_mods_path: &String, local_mods: &HashMap<u64, Resource>, 
     pb_download.finish_and_clear();
 }
 
-/// Reads desired mod list from env ($BEAMMP_MODS) and looks-it-up on beamng.com/resources
+/// Reads desired mod list from env ($BW_MODS) and looks-it-up on beamng.com/resources
 fn fetch_online_information() -> HashMap<u64, Resource> {
     let pg_remote = ProgressBar::new_spinner()
         .with_message("Fetching remote information");
 
-    let wanted_mods: Vec<String> = env::var("BEAMMP_MODS")
-        .expect("BEAMMP_MODS env var not found")
+    let wanted_mods: Vec<String> = env::var("BW_MODS")
+        .expect("BW_MODS env var not found")
         .split(",")
         .map(|entry| entry.to_string())
         .collect();

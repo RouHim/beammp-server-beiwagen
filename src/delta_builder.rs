@@ -69,51 +69,51 @@ pub fn get_to_remove(local_list: &HashMap<u64, Resource>, remote_list: &HashMap<
 
 /// Checks if the passed resource should be deleted.
 ///
-/// returns `true` if `OUTDATED` is set to `delete`
+/// returns `true` if `BW_OUTDATED` is set to `delete`
 ///         AND the resource prefix is set to `Outdated`,
 ///         otherwise `false`.
 ///
 /// Check `delta_builder_test.rs` for example usages
 fn should_delete_outdated(val: &Resource) -> bool {
-    is_env_var("OUTDATED", "delete")
+    is_env_var("BW_OUTDATED", "delete")
         && val.prefix.eq_ignore_ascii_case("Outdated")
 }
 
 /// Checks if the passed resource should be deleted.
 ///
-/// returns `true` if `UNSUPPORTED` is set to `delete`
+/// returns `true` if `BW_UNSUPPORTED` is set to `delete`
 ///         AND the resource prefix is set to `Unsupported`,
 ///         otherwise `false`.
 ///
 /// Check `delta_builder_test.rs` for example usages
 fn should_delete_unsupported(val: &Resource) -> bool {
-    is_env_var("UNSUPPORTED", "delete")
+    is_env_var("BW_UNSUPPORTED", "delete")
         && val.prefix.eq_ignore_ascii_case("Unsupported")
 }
 
 /// Checks if the passed resource should be skipped when downloading.
 ///
-/// returns `true` if `OUTDATED` is set to `delete` or `skip`
+/// returns `true` if `BW_OUTDATED` is set to `delete` or `skip`
 ///         AND the resource prefix is set to `Outdated`,
 ///         otherwise `false`.
 ///
 /// Check `delta_builder_test.rs` for example usages
 fn should_skip_outdated(val: &Resource) -> bool {
-    (is_env_var("OUTDATED", "delete")
-        || is_env_var("OUTDATED", "skip"))
+    (is_env_var("BW_OUTDATED", "delete")
+        || is_env_var("BW_OUTDATED", "skip"))
         && val.prefix.eq_ignore_ascii_case("Outdated")
 }
 
 /// Checks if the passed resource should be skipped when downloading.
 ///
-/// returns `true` if `UNSUPPORTED` is set to `delete` or `skip`
+/// returns `true` if `BW_UNSUPPORTED` is set to `delete` or `skip`
 ///         AND the resource prefix is set to `Unsupported`,
 ///         otherwise `false`.
 ///
 /// Check `delta_builder_test.rs` for example usages
 fn should_skip_unsupported(val: &Resource) -> bool {
-    (is_env_var("UNSUPPORTED", "delete")
-        || is_env_var("UNSUPPORTED", "skip"))
+    (is_env_var("BW_UNSUPPORTED", "delete")
+        || is_env_var("BW_UNSUPPORTED", "skip"))
         && val.prefix.eq_ignore_ascii_case("Unsupported")
 }
 

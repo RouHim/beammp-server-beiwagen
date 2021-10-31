@@ -121,7 +121,7 @@ fn to_download_version_equal() {
 #[test]
 fn to_download_skip_outdated_on_skip() {
     // GIVEN
-    env::set_var("OUTDATED", "skip");
+    env::set_var("BW_OUTDATED", "skip");
     let local: Vec<Resource> = vec![];
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "OUTDATED")];
 
@@ -138,7 +138,7 @@ fn to_download_skip_outdated_on_skip() {
 #[test]
 fn to_download_skip_outdated_on_delete() {
     // GIVEN
-    env::set_var("OUTDATED", "delete");
+    env::set_var("BW_OUTDATED", "delete");
     let local: Vec<Resource> = vec![];
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "OUTDATED")];
 
@@ -155,7 +155,7 @@ fn to_download_skip_outdated_on_delete() {
 #[test]
 fn to_download_download_regular_on_outdated_skip() {
     // GIVEN
-    env::set_var("OUTDATED", "skip");
+    env::set_var("BW_OUTDATED", "skip");
     let local: Vec<Resource> = vec![];
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "")];
 
@@ -172,7 +172,7 @@ fn to_download_download_regular_on_outdated_skip() {
 #[test]
 fn to_download_download_regular_on_outdated_delete() {
     // GIVEN
-    env::set_var("OUTDATED", "delete");
+    env::set_var("BW_OUTDATED", "delete");
     let local: Vec<Resource> = vec![];
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "")];
 
@@ -189,7 +189,7 @@ fn to_download_download_regular_on_outdated_delete() {
 #[test]
 fn to_download_skip_unsupported_on_skip() {
     // GIVEN
-    env::set_var("UNSUPPORTED", "skip");
+    env::set_var("BW_UNSUPPORTED", "skip");
     let local: Vec<Resource> = vec![];
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "UNSUPPORTED")];
 
@@ -206,7 +206,7 @@ fn to_download_skip_unsupported_on_skip() {
 #[test]
 fn to_download_download_regular_on_unsupported_skip() {
     // GIVEN
-    env::set_var("UNSUPPORTED", "skip");
+    env::set_var("BW_UNSUPPORTED", "skip");
     let local: Vec<Resource> = vec![];
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "")];
 
@@ -223,7 +223,7 @@ fn to_download_download_regular_on_unsupported_skip() {
 #[test]
 fn to_download_download_regular_on_unsupported_delete() {
     // GIVEN
-    env::set_var("UNSUPPORTED", "delete");
+    env::set_var("BW_UNSUPPORTED", "delete");
     let local: Vec<Resource> = vec![];
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "")];
 
@@ -240,7 +240,7 @@ fn to_download_download_regular_on_unsupported_delete() {
 #[test]
 fn to_download_skip_unsupported_on_delete() {
     // GIVEN
-    env::set_var("UNSUPPORTED", "delete");
+    env::set_var("BW_UNSUPPORTED", "delete");
     let local: Vec<Resource> = vec![];
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "UNSUPPORTED")];
 
@@ -321,7 +321,7 @@ fn to_remove_empty_local_remote() {
 #[test]
 fn to_remove_local_outdated_skip() {
     // GIVEN
-    env::set_var("OUTDATED", "skip");
+    env::set_var("BW_OUTDATED", "skip");
     let local: Vec<Resource> = vec![generate_resource(1)];
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "OUTDATED")];
 
@@ -338,7 +338,7 @@ fn to_remove_local_outdated_skip() {
 #[test]
 fn to_remove_local_outdated_delete() {
     // GIVEN
-    env::set_var("OUTDATED", "delete");
+    env::set_var("BW_OUTDATED", "delete");
     let local: Vec<Resource> = vec![generate_resource(1)];
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "OUTDATED")];
 
@@ -355,7 +355,7 @@ fn to_remove_local_outdated_delete() {
 #[test]
 fn to_remove_local_unsupported_skip() {
     // GIVEN
-    env::set_var("UNSUPPORTED", "skip");
+    env::set_var("BW_UNSUPPORTED", "skip");
     let local: Vec<Resource> = vec![generate_resource(1)];
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "UNSUPPORTED")];
 
@@ -372,7 +372,7 @@ fn to_remove_local_unsupported_skip() {
 #[test]
 fn to_remove_local_unsupported_delete() {
     // GIVEN
-    env::set_var("UNSUPPORTED", "delete");
+    env::set_var("BW_UNSUPPORTED", "delete");
     let local: Vec<Resource> = vec![generate_resource(1)];
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "UNSUPPORTED")];
 
