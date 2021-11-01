@@ -24,9 +24,9 @@ rustup target add x86_64-unknown-linux-gnu \
 cargo build --release --target=x86_64-unknown-linux-gnu
 mv target/x86_64-unknown-linux-gnu/release/beammp-server-beiwagen target/beiwagen-x86_64
 
-# build arm64 linux release
+# build aarch64 (ARM64) linux release
 cargo build --release --target=aarch64-unknown-linux-gnu
-mv target/aarch64-unknown-linux-gnu/release/beammp-server-beiwagen target/beiwagen-arm64
+mv target/aarch64-unknown-linux-gnu/release/beammp-server-beiwagen target/beiwagen-aarch64
 
 # Not compatible with rust-ssl
 # build armv7 linux release
