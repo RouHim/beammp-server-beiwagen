@@ -45,7 +45,6 @@ fn read_mod_info(mod_file: &PathBuf) -> Result<String, String> {
         std::fs::remove_file(zip_file_path).expect("could not delete");
         return Err("Invalid archive -> deleting it".to_string());
     };
-
     let mut archive = maybe_archive.unwrap();
 
     let info_json_full_path = find_file_path(&mut archive, r"mod_info/.*/info.json");
@@ -68,7 +67,7 @@ fn read_content(archive: &mut ZipArchive<BufReader<&File>>, filename_to_read: St
     return Ok(file_content);
 }
 
-/// Finds the first file in the specifeid zip `archive` that matches `file_to_read_regex` pattern.
+/// Finds the first file in the specified zip `archive` that matches `file_to_read_regex` pattern.
 fn find_file_path(archive: &mut ZipArchive<BufReader<&File>>, file_to_read_regex: &str) -> Result<String, ()> {
     let info_json_pattern = Regex::new(file_to_read_regex).unwrap();
 
