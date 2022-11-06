@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 zip = "0.6"
-regex = "1.6"
+regex = "1.7"
 serde_json = "1.0"
 colour = "0.6"
 lazy_static = "1.4"
