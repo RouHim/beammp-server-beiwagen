@@ -11,7 +11,7 @@ colour = "0.6"
 lazy_static = "1.4"
 scraper = "0.14"
 rayon = "1.6"
-indicatif = { version = "0.17.1", features = ["rayon", "improved_unicode"] }
+indicatif = { version = "0.17.2", features = ["rayon", "improved_unicode"] }
 reqwest = { version = "0.11", features = ["blocking"] } # No need to make asynchron calls
 openssl = { version = "0.10", features = ["vendored"] } # vendored needed for arm64 cross build
 
