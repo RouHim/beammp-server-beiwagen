@@ -17,7 +17,7 @@ openssl = { version = "0.10", features = ["vendored"] } # vendored needed for ar
 
 [dev-dependencies]
 assertor = "0.0"
-pretty_assertions = "1.3"
+pretty_assertions = "1.4"
 
 # Strip debug symbols in release mode
 [profile.release]
