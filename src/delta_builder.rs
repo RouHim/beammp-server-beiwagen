@@ -10,7 +10,10 @@ use crate::Resource;
 /// `remote_list` contains wanted remote online available mods
 ///
 /// `returns` a vector of mods that needs to be downloaded
-pub fn get_to_download(local_list: &HashMap<u64, Resource>, remote_list: &HashMap<u64, Resource>) -> Vec<Resource> {
+pub fn get_to_download(
+    local_list: &HashMap<u64, Resource>,
+    remote_list: &HashMap<u64, Resource>,
+) -> Vec<Resource> {
     let new_entries: Vec<Resource> = remote_list
         .iter()
         .filter(|(key, _val)| !local_list.contains_key(key))
@@ -40,7 +43,10 @@ pub fn get_to_download(local_list: &HashMap<u64, Resource>, remote_list: &HashMa
 /// `remote_list` contains wanted remote online available mods
 ///
 /// `returns` a vector of mods that needs to be deleted
-pub fn get_to_remove(local_list: &HashMap<u64, Resource>, remote_list: &HashMap<u64, Resource>) -> Vec<Resource> {
+pub fn get_to_remove(
+    local_list: &HashMap<u64, Resource>,
+    remote_list: &HashMap<u64, Resource>,
+) -> Vec<Resource> {
     let deleted_entries: Vec<Resource> = local_list
         .iter()
         .filter(|(key, _val)| !remote_list.contains_key(key))
@@ -75,8 +81,7 @@ pub fn get_to_remove(local_list: &HashMap<u64, Resource>, remote_list: &HashMap<
 ///
 /// Check `delta_builder_test.rs` for example usages
 fn should_delete_outdated(val: &Resource) -> bool {
-    is_env_var("BW_OUTDATED", "delete")
-        && val.prefix.eq_ignore_ascii_case("Outdated")
+    is_env_var("BW_OUTDATED", "delete") && val.prefix.eq_ignore_ascii_case("Outdated")
 }
 
 /// Checks if the passed resource should be deleted.
@@ -87,8 +92,7 @@ fn should_delete_outdated(val: &Resource) -> bool {
 ///
 /// Check `delta_builder_test.rs` for example usages
 fn should_delete_unsupported(val: &Resource) -> bool {
-    is_env_var("BW_UNSUPPORTED", "delete")
-        && val.prefix.eq_ignore_ascii_case("Unsupported")
+    is_env_var("BW_UNSUPPORTED", "delete") && val.prefix.eq_ignore_ascii_case("Unsupported")
 }
 
 /// Checks if the passed resource should be skipped when downloading.
@@ -99,8 +103,7 @@ fn should_delete_unsupported(val: &Resource) -> bool {
 ///
 /// Check `delta_builder_test.rs` for example usages
 fn should_skip_outdated(val: &Resource) -> bool {
-    (is_env_var("BW_OUTDATED", "delete")
-        || is_env_var("BW_OUTDATED", "skip"))
+    (is_env_var("BW_OUTDATED", "delete") || is_env_var("BW_OUTDATED", "skip"))
         && val.prefix.eq_ignore_ascii_case("Outdated")
 }
 
@@ -112,14 +115,12 @@ fn should_skip_outdated(val: &Resource) -> bool {
 ///
 /// Check `delta_builder_test.rs` for example usages
 fn should_skip_unsupported(val: &Resource) -> bool {
-    (is_env_var("BW_UNSUPPORTED", "delete")
-        || is_env_var("BW_UNSUPPORTED", "skip"))
+    (is_env_var("BW_UNSUPPORTED", "delete") || is_env_var("BW_UNSUPPORTED", "skip"))
         && val.prefix.eq_ignore_ascii_case("Unsupported")
 }
 
 /// returns `true` if the env var specified by `env_name` is set to the value specified in `env_value`.
 fn is_env_var(env_name: &str, env_value: &str) -> bool {
     let env_var = env::var(env_name);
-    env_var.is_ok()
-        && env_var.unwrap().eq_ignore_ascii_case(env_value)
+    env_var.is_ok() && env_var.unwrap().eq_ignore_ascii_case(env_value)
 }

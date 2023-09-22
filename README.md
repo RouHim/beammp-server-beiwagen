@@ -13,19 +13,19 @@ The _beiwagen_ application is optionally integrated int the `rouhim/beammp-serve
 of your desired mods, defined as environment variables. This happens before the actual server starts. The docker
 behavior is identical to the vanilla container, apart from the optional automatic updates.
 
-> Sadly this is not compileable to ARMv7.
+> Sadly this is not compilable to ARMv7.
 
 ### Parameter
 
 The parameter `BW_CLIENT_MODS_DIR` is already set in the `rouhim/beammp-server` image, if it is used as a standalone
 application it still has to be set manually.
 
-Name                            | Description                                                               |  Default value             |  Example
---------------------------------|---------------------------------------------------------------------------|----------------------------|------------
-BW_CLIENT_MODS_DIR  | Mandatory! Folder where BeamMP client mods should be downloaded to.                   | `<empty>`                  | `/beammp/Resources/Client`
-BW_MODS             | Mandatory! List of mod ids to download and keep track of. See: How to find mod id     | `<empty>`                  | `20231,19639,20292`
-BW_OUTDATED         | Specify how to handle outdated mods - check explanation below                         | `<empty>`                  | `skip`
-BW_UNSUPPORTED      | Specify how to handle unsupported mods - check explanation below                      | `<empty>`                  | `delete`
+| Name               | Description                                                                       | Default value | Example                    |
+|--------------------|-----------------------------------------------------------------------------------|---------------|----------------------------|
+| BW_CLIENT_MODS_DIR | Mandatory! Folder where BeamMP client mods should be downloaded to.               | `<empty>`     | `/beammp/Resources/Client` |
+| BW_MODS            | Mandatory! List of mod ids to download and keep track of. See: How to find mod id | `<empty>`     | `20231,19639,20292`        |
+| BW_OUTDATED        | Specify how to handle outdated mods - check explanation below                     | `<empty>`     | `skip`                     |
+| BW_UNSUPPORTED     | Specify how to handle unsupported mods - check explanation below                  | `<empty>`     | `delete`                   |
 
 Each mod on [beamng.com/resources](https://beamng.com/resources) can be marked if it is **unsupported** or **outdated**.
 The following logic can affect the automation behavior - For the parameters `BW_OUTDATED` and `BW_UNSUPPORTED` the

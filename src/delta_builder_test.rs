@@ -13,10 +13,7 @@ fn to_download_all() {
     let remote: Vec<Resource> = vec![generate_resource(1), generate_resource(2)];
 
     // WHEN
-    let to_download = delta_builder::get_to_download(
-        &to_map(&local),
-        &to_map(&remote),
-    );
+    let to_download = delta_builder::get_to_download(&to_map(&local), &to_map(&remote));
 
     // THEN
     assert_that!(to_download).contains_exactly(remote);
@@ -29,10 +26,7 @@ fn to_download_one() {
     let remote: Vec<Resource> = vec![generate_resource(1), generate_resource(2)];
 
     // WHEN
-    let to_download = delta_builder::get_to_download(
-        &to_map(&local),
-        &to_map(&remote),
-    );
+    let to_download = delta_builder::get_to_download(&to_map(&local), &to_map(&remote));
 
     // THEN
     assert_that!(to_download).contains_exactly(vec![generate_resource(2)])
@@ -45,10 +39,7 @@ fn to_download_empty() {
     let remote: Vec<Resource> = vec![generate_resource(1), generate_resource(2)];
 
     // WHEN
-    let to_download = delta_builder::get_to_download(
-        &to_map(&local),
-        &to_map(&remote),
-    );
+    let to_download = delta_builder::get_to_download(&to_map(&local), &to_map(&remote));
 
     // THEN
     assert_that!(to_download).contains_exactly(vec![])
@@ -61,10 +52,7 @@ fn to_download_no_remote() {
     let remote: Vec<Resource> = vec![];
 
     // WHEN
-    let to_download = delta_builder::get_to_download(
-        &to_map(&local),
-        &to_map(&remote),
-    );
+    let to_download = delta_builder::get_to_download(&to_map(&local), &to_map(&remote));
 
     // THEN
     assert_that!(to_download).contains_exactly(vec![])
@@ -77,10 +65,7 @@ fn to_download_remote_newer() {
     let remote: Vec<Resource> = vec![generate_resource_with_version(1, 2)];
 
     // WHEN
-    let to_download = delta_builder::get_to_download(
-        &to_map(&local),
-        &to_map(&remote),
-    );
+    let to_download = delta_builder::get_to_download(&to_map(&local), &to_map(&remote));
 
     // THEN
     assert_that!(to_download).contains_exactly(vec![generate_resource_with_version(1, 2)])
@@ -93,10 +78,7 @@ fn to_download_local_newer() {
     let remote: Vec<Resource> = vec![generate_resource_with_version(1, 1)];
 
     // WHEN
-    let to_download = delta_builder::get_to_download(
-        &to_map(&local),
-        &to_map(&remote),
-    );
+    let to_download = delta_builder::get_to_download(&to_map(&local), &to_map(&remote));
 
     // THEN
     assert_that!(to_download).contains_exactly(vec![]);
@@ -109,10 +91,7 @@ fn to_download_version_equal() {
     let remote: Vec<Resource> = vec![generate_resource_with_version(1, 1)];
 
     // WHEN
-    let to_download = delta_builder::get_to_download(
-        &to_map(&local),
-        &to_map(&remote),
-    );
+    let to_download = delta_builder::get_to_download(&to_map(&local), &to_map(&remote));
 
     // THEN
     assert_that!(to_download).contains_exactly(vec![]);
@@ -126,10 +105,7 @@ fn to_download_skip_outdated_on_skip() {
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "OUTDATED")];
 
     // WHEN
-    let to_download = delta_builder::get_to_download(
-        &to_map(&local),
-        &to_map(&remote),
-    );
+    let to_download = delta_builder::get_to_download(&to_map(&local), &to_map(&remote));
 
     // THEN
     assert_that!(to_download).contains_exactly(vec![]);
@@ -143,10 +119,7 @@ fn to_download_skip_outdated_on_delete() {
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "OUTDATED")];
 
     // WHEN
-    let to_download = delta_builder::get_to_download(
-        &to_map(&local),
-        &to_map(&remote),
-    );
+    let to_download = delta_builder::get_to_download(&to_map(&local), &to_map(&remote));
 
     // THEN
     assert_that!(to_download).contains_exactly(vec![]);
@@ -160,10 +133,7 @@ fn to_download_download_regular_on_outdated_skip() {
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "")];
 
     // WHEN
-    let to_download = delta_builder::get_to_download(
-        &to_map(&local),
-        &to_map(&remote),
-    );
+    let to_download = delta_builder::get_to_download(&to_map(&local), &to_map(&remote));
 
     // THEN
     assert_that!(to_download).contains_exactly(vec![generate_resource_with_prefix(1, "")]);
@@ -177,10 +147,7 @@ fn to_download_download_regular_on_outdated_delete() {
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "")];
 
     // WHEN
-    let to_download = delta_builder::get_to_download(
-        &to_map(&local),
-        &to_map(&remote),
-    );
+    let to_download = delta_builder::get_to_download(&to_map(&local), &to_map(&remote));
 
     // THEN
     assert_that!(to_download).contains_exactly(vec![generate_resource_with_prefix(1, "")]);
@@ -194,10 +161,7 @@ fn to_download_skip_unsupported_on_skip() {
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "UNSUPPORTED")];
 
     // WHEN
-    let to_download = delta_builder::get_to_download(
-        &to_map(&local),
-        &to_map(&remote),
-    );
+    let to_download = delta_builder::get_to_download(&to_map(&local), &to_map(&remote));
 
     // THEN
     assert_that!(to_download).contains_exactly(vec![]);
@@ -211,10 +175,7 @@ fn to_download_download_regular_on_unsupported_skip() {
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "")];
 
     // WHEN
-    let to_download = delta_builder::get_to_download(
-        &to_map(&local),
-        &to_map(&remote),
-    );
+    let to_download = delta_builder::get_to_download(&to_map(&local), &to_map(&remote));
 
     // THEN
     assert_that!(to_download).contains_exactly(vec![generate_resource_with_prefix(1, "")]);
@@ -228,10 +189,7 @@ fn to_download_download_regular_on_unsupported_delete() {
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "")];
 
     // WHEN
-    let to_download = delta_builder::get_to_download(
-        &to_map(&local),
-        &to_map(&remote),
-    );
+    let to_download = delta_builder::get_to_download(&to_map(&local), &to_map(&remote));
 
     // THEN
     assert_that!(to_download).contains_exactly(vec![generate_resource_with_prefix(1, "")]);
@@ -245,10 +203,7 @@ fn to_download_skip_unsupported_on_delete() {
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "UNSUPPORTED")];
 
     // WHEN
-    let to_download = delta_builder::get_to_download(
-        &to_map(&local),
-        &to_map(&remote),
-    );
+    let to_download = delta_builder::get_to_download(&to_map(&local), &to_map(&remote));
 
     // THEN
     assert_that!(to_download).contains_exactly(vec![]);
@@ -261,10 +216,7 @@ fn to_remove_empty_remote() {
     let remote: Vec<Resource> = vec![];
 
     // WHEN
-    let to_remove = delta_builder::get_to_remove(
-        &to_map(&local),
-        &to_map(&remote),
-    );
+    let to_remove = delta_builder::get_to_remove(&to_map(&local), &to_map(&remote));
 
     // THEN
     assert_that!(to_remove).contains_exactly(vec![generate_resource(1)])
@@ -277,10 +229,7 @@ fn to_remove_empty_local() {
     let remote: Vec<Resource> = vec![generate_resource(1)];
 
     // WHEN
-    let to_remove = delta_builder::get_to_remove(
-        &to_map(&local),
-        &to_map(&remote),
-    );
+    let to_remove = delta_builder::get_to_remove(&to_map(&local), &to_map(&remote));
 
     // THEN
     assert_that!(to_remove).contains_exactly(vec![])
@@ -293,10 +242,7 @@ fn to_remove_different_ids() {
     let remote: Vec<Resource> = vec![generate_resource(3), generate_resource(4)];
 
     // WHEN
-    let to_remove = delta_builder::get_to_remove(
-        &to_map(&local),
-        &to_map(&remote),
-    );
+    let to_remove = delta_builder::get_to_remove(&to_map(&local), &to_map(&remote));
 
     // THEN
     assert_that!(to_remove).contains_exactly(vec![generate_resource(1), generate_resource(2)])
@@ -309,10 +255,7 @@ fn to_remove_empty_local_remote() {
     let remote: Vec<Resource> = vec![];
 
     // WHEN
-    let to_remove = delta_builder::get_to_remove(
-        &to_map(&local),
-        &to_map(&remote),
-    );
+    let to_remove = delta_builder::get_to_remove(&to_map(&local), &to_map(&remote));
 
     // THEN
     assert_that!(to_remove).contains_exactly(vec![])
@@ -326,10 +269,7 @@ fn to_remove_local_outdated_skip() {
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "OUTDATED")];
 
     // WHEN
-    let to_remove = delta_builder::get_to_remove(
-        &to_map(&local),
-        &to_map(&remote),
-    );
+    let to_remove = delta_builder::get_to_remove(&to_map(&local), &to_map(&remote));
 
     // THEN
     assert_that!(to_remove).contains_exactly(vec![])
@@ -343,10 +283,7 @@ fn to_remove_local_outdated_delete() {
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "OUTDATED")];
 
     // WHEN
-    let to_remove = delta_builder::get_to_remove(
-        &to_map(&local),
-        &to_map(&remote),
-    );
+    let to_remove = delta_builder::get_to_remove(&to_map(&local), &to_map(&remote));
 
     // THEN
     assert_that!(to_remove).contains_exactly(vec![generate_resource(1)])
@@ -360,10 +297,7 @@ fn to_remove_local_unsupported_skip() {
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "UNSUPPORTED")];
 
     // WHEN
-    let to_remove = delta_builder::get_to_remove(
-        &to_map(&local),
-        &to_map(&remote),
-    );
+    let to_remove = delta_builder::get_to_remove(&to_map(&local), &to_map(&remote));
 
     // THEN
     assert_that!(to_remove).contains_exactly(vec![])
@@ -377,10 +311,7 @@ fn to_remove_local_unsupported_delete() {
     let remote: Vec<Resource> = vec![generate_resource_with_prefix(1, "UNSUPPORTED")];
 
     // WHEN
-    let to_remove = delta_builder::get_to_remove(
-        &to_map(&local),
-        &to_map(&remote),
-    );
+    let to_remove = delta_builder::get_to_remove(&to_map(&local), &to_map(&remote));
 
     // THEN
     assert_that!(to_remove).contains_exactly(vec![generate_resource(1)])
@@ -391,7 +322,7 @@ fn to_map(input_vec: &Vec<Resource>) -> HashMap<u64, Resource> {
     for element in input_vec {
         map.insert(element.id, element.clone());
     }
-    return map;
+    map
 }
 
 fn generate_resource(id: u64) -> Resource {

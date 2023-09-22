@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io::{BufReader, Read};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use colour::red_ln;
 use regex::Regex;
@@ -17,7 +17,7 @@ pub fn read(mod_file: PathBuf) -> Option<Resource> {
         red_ln!(
             " - {} | {} | no auto-updates available",
             mod_file.file_name().unwrap().to_str().unwrap(),
-            json_string.unwrap_err(),
+            json_string.unwrap_err()
         );
         return None;
     }
@@ -36,10 +36,10 @@ pub fn read(mod_file: PathBuf) -> Option<Resource> {
 }
 
 /// Extracts all mod metadata out of the local `mod_file` zip.
-fn read_mod_info(mod_file: &PathBuf) -> Result<String, String> {
+fn read_mod_info(mod_file: &Path) -> Result<String, String> {
     let zip_file_path = mod_file.to_str().unwrap();
     let file = File::open(zip_file_path).unwrap();
-    let maybe_archive = zip::ZipArchive::new(BufReader::new(&file));
+    let maybe_archive = ZipArchive::new(BufReader::new(&file));
 
     if maybe_archive.is_err() {
         std::fs::remove_file(zip_file_path).expect("could not delete");
@@ -51,24 +51,32 @@ fn read_mod_info(mod_file: &PathBuf) -> Result<String, String> {
 
     match info_json_full_path {
         Ok(info_json) => read_content(&mut archive, info_json),
-        Err(()) => Err("info.json not found".to_string())
+        Err(()) => Err("info.json not found".to_string()),
     }
 }
 
 /// Reads the content of the `filename_to_read` located in the zip `archive`.
-fn read_content(archive: &mut ZipArchive<BufReader<&File>>, filename_to_read: String) -> Result<String, String> {
+fn read_content(
+    archive: &mut ZipArchive<BufReader<&File>>,
+    filename_to_read: String,
+) -> Result<String, String> {
     let mut info_json_compressed = archive
         .by_name(filename_to_read.as_str())
         .expect("filepath not found in zip");
 
     let mut file_content = String::new();
-    info_json_compressed.read_to_string(&mut file_content).expect("Read zip content");
+    info_json_compressed
+        .read_to_string(&mut file_content)
+        .expect("Read zip content");
 
-    return Ok(file_content);
+    Ok(file_content)
 }
 
 /// Finds the first file in the specified zip `archive` that matches `file_to_read_regex` pattern.
-fn find_file_path(archive: &mut ZipArchive<BufReader<&File>>, file_to_read_regex: &str) -> Result<String, ()> {
+fn find_file_path(
+    archive: &mut ZipArchive<BufReader<&File>>,
+    file_to_read_regex: &str,
+) -> Result<String, ()> {
     let info_json_pattern = Regex::new(file_to_read_regex).unwrap();
 
     for idx in 0..archive.len() {
@@ -79,7 +87,7 @@ fn find_file_path(archive: &mut ZipArchive<BufReader<&File>>, file_to_read_regex
         if info_json_pattern.is_match(full_name) {
             return Ok(full_name.to_string());
         }
-    };
+    }
 
     Err(())
 }

@@ -1,21 +1,24 @@
-use std::{env, fmt, fs};
+extern crate core;
+
 use std::collections::HashMap;
 use std::fs::DirEntry;
+use std::{env, fmt, fs};
 
-use indicatif::{MultiProgress, ParallelProgressIterator, ProgressBar, ProgressIterator, ProgressStyle};
+use indicatif::{
+    MultiProgress, ParallelProgressIterator, ProgressBar, ProgressIterator, ProgressStyle,
+};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
+mod delta_builder;
 mod local_resource;
 mod online_resource;
-mod delta_builder;
 
 #[cfg(test)]
 mod delta_builder_test;
 mod file_manager;
 
 fn main() {
-    let local_mods_path: String = env::var("BW_CLIENT_MODS_DIR")
-        .unwrap_or("mods".to_string());
+    let local_mods_path: String = env::var("BW_CLIENT_MODS_DIR").unwrap_or("mods".to_string());
 
     let local_mods = analyse_local_mods(&local_mods_path);
 
@@ -27,55 +30,57 @@ fn main() {
 }
 
 /// Deletes no longer needed mods
-fn delete_obsolete(local_mods_path: &String, local_mods: &HashMap<u64, Resource>, online_mods_string: &HashMap<u64, Resource>) {
-    let pg_delete = ProgressBar::new_spinner()
-        .with_message("Deleting obsolete mods");
+fn delete_obsolete(
+    local_mods_path: &String,
+    local_mods: &HashMap<u64, Resource>,
+    online_mods_string: &HashMap<u64, Resource>,
+) {
+    let pg_delete = ProgressBar::new_spinner().with_message("Deleting obsolete mods");
 
-    delta_builder::get_to_remove(&local_mods, &online_mods_string)
+    delta_builder::get_to_remove(local_mods, online_mods_string)
         .iter()
         .progress_with(pg_delete)
         // .inspect(|resource| println!(" - {}", resource))
-        .for_each(|resource| file_manager::delete(&local_mods_path, resource));
+        .for_each(|resource| file_manager::delete(local_mods_path, resource));
 }
 
 /// Evaluates which mods needs to be downloaded or updated and downloads them
-fn download_mods(local_mods_path: &String, local_mods: &HashMap<u64, Resource>, online_mods_string: &HashMap<u64, Resource>) {
-    let to_download = delta_builder::get_to_download(
-        &local_mods,
-        &online_mods_string,
-    );
+fn download_mods(
+    local_mods_path: &String,
+    local_mods: &HashMap<u64, Resource>,
+    online_mods_string: &HashMap<u64, Resource>,
+) {
+    let to_download = delta_builder::get_to_download(local_mods, online_mods_string);
 
     let multi_progress_bar = MultiProgress::new();
-    let pb_download = multi_progress_bar.add(ProgressBar::new(to_download.len() as u64)
-        .with_style(
-            ProgressStyle::default_bar()
-                .template("{msg} {pos}/{len}")
-        )
-        .with_message("Downloading missing or updated")
+    let pb_download = multi_progress_bar.add(
+        ProgressBar::new(to_download.len() as u64)
+            .with_style(
+                ProgressStyle::default_bar()
+                    .template("{msg} {pos}/{len}")
+                    .unwrap(),
+            )
+            .with_message("Downloading missing or updated"),
     );
 
-    to_download.par_iter()
-        .for_each(|resource| file_manager::download(
-            &multi_progress_bar,
-            &pb_download,
-            &local_mods_path,
-            resource)
-        );
+    to_download.par_iter().for_each(|resource| {
+        file_manager::download(&multi_progress_bar, &pb_download, local_mods_path, resource)
+    });
     pb_download.finish_and_clear();
 }
 
 /// Reads desired mod list from env ($BW_MODS) and looks-it-up on beamng.com/resources
 fn fetch_online_information() -> HashMap<u64, Resource> {
-    let pg_remote = ProgressBar::new_spinner()
-        .with_message("Fetching remote information");
+    let pg_remote = ProgressBar::new_spinner().with_message("Fetching remote information");
 
     let wanted_mods: Vec<String> = env::var("BW_MODS")
         .expect("BW_MODS env var not found")
-        .split(",")
+        .split(',')
         .map(|entry| entry.to_string())
         .collect();
 
-    wanted_mods.par_iter()
+    wanted_mods
+        .par_iter()
         .progress_with(pg_remote)
         .filter_map(|mod_id| online_resource::read(mod_id))
         // .inspect(|resource| println!(" - {}", resource))
@@ -85,15 +90,15 @@ fn fetch_online_information() -> HashMap<u64, Resource> {
 
 /// Reads all available mods from the local mods directory
 fn analyse_local_mods(local_mods_path: &String) -> HashMap<u64, Resource> {
-    let pg_local = ProgressBar::new_spinner()
-        .with_message("Analysing local mods");
+    let pg_local = ProgressBar::new_spinner().with_message("Analysing local mods");
 
-    fs::read_dir(&local_mods_path).unwrap()
+    fs::read_dir(local_mods_path)
+        .unwrap()
         .progress_with(pg_local)
         .map(|dir_entry| dir_entry.unwrap())
-        .filter(|dir_entry| is_zip_file(&dir_entry))
+        .filter(is_zip_file)
         .map(|zip_file| fs::canonicalize(zip_file.path()).unwrap())
-        .filter_map(|absolute_path| local_resource::read(absolute_path))
+        .filter_map(local_resource::read)
         // .inspect(|resource| println!(" - {}", resource))
         .map(|entry| (entry.id, entry))
         .collect()
@@ -107,7 +112,7 @@ fn is_zip_file(dir_entry: &DirEntry) -> bool {
 }
 
 /// Represents a BeamNG mod resource with its metadata.
-#[derive(Debug, Hash, Clone)]
+#[derive(Debug, Clone)]
 pub struct Resource {
     pub id: u64,
     pub tag_id: String,
@@ -121,21 +126,23 @@ pub struct Resource {
 /// Implement the `PartialEq` trait for `[Resource]` struct.
 impl PartialEq<Self> for Resource {
     fn eq(&self, other: &Self) -> bool {
-        return self.id.eq(&other.id);
+        self.id.eq(&other.id)
     }
 }
 
 /// Implement the `Display` trait for `[Resource]` struct.
 impl fmt::Display for Resource {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "[id={}, tag_id={}, name={}, version={}, prefix={}, filename={}, download_url={}]",
-               self.id,
-               self.tag_id,
-               self.name,
-               self.version,
-               self.prefix,
-               self.filename,
-               self.download_url,
+        write!(
+            f,
+            "[id={}, tag_id={}, name={}, version={}, prefix={}, filename={}, download_url={}]",
+            self.id,
+            self.tag_id,
+            self.name,
+            self.version,
+            self.prefix,
+            self.filename,
+            self.download_url,
         )
     }
 }
