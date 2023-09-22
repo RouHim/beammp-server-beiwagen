@@ -10,7 +10,7 @@ serde_json = "1.0"
 colour = "0.7"
 lazy_static = "1.4"
 scraper = "0.16"
-rayon = "1.7"
+rayon = "1.8"
 indicatif = { version = "0.17.4", features = ["rayon", "improved_unicode"] }
 reqwest = { version = "0.11", features = ["blocking"] } # No need to make asynchron calls
 openssl = { version = "0.10", features = ["vendored"] } # vendored needed for arm64 cross build
