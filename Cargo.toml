@@ -13,7 +13,7 @@ lazy_static = "1.4"
 scraper = "0.17"
 rayon = "1.8"
 indicatif = { version = "0.17", features = ["rayon", "improved_unicode"] }
-ureq = "2.7"
+ureq = "2.8"
 
 [dev-dependencies]
 assertor = "0.0"
