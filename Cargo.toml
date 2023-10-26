@@ -10,7 +10,7 @@ serde = "1.0"
 serde_json = "1.0"
 colour = "0.7"
 lazy_static = "1.4"
-scraper = "0.17"
+scraper = "0.18"
 rayon = "1.8"
 indicatif = { version = "0.17", features = ["rayon", "improved_unicode"] }
 ureq = "2.8"
