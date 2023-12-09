@@ -1,7 +1,6 @@
 # beammp-server-beiwagen
 
-This application keeps your **client mods** of the beammp server up to date. It is integrated in the
-tag: `rouhim/beammp-server` image and can be used optionally.
+This application keeps your **client mods** of the beammp server up to date. 
 
 ## Motivation
 
@@ -9,9 +8,7 @@ Everybody knows it, everybody hates it; as soon as you have downloaded the mods 
 
 ## Usage
 
-The _beiwagen_ application is optionally integrated int the `rouhim/beammp-server` image and can download and update all
-of your desired mods, defined as environment variables. This happens before the actual server starts. The docker
-behavior is identical to the vanilla container, apart from the optional automatic updates.
+Iz can download and update all of your desired mods, defined as environment variables. 
 
 > Sadly this is not compilable to ARMv7.
 
