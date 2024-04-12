@@ -1,0 +1,34 @@
+# [0.2.0](https://github.com/RouHim/beammp-server-beiwagen/compare/v0.1.0...0.2.0) (2024-04-12)
+
+
+### Bug Fixes
+
+* **deps:** update rust crate colour to 0.7 ([c927b99](https://github.com/RouHim/beammp-server-beiwagen/commit/c927b998ce6c3fca0db296f86ed172c205a17568))
+* **deps:** update rust crate indicatif to 0.17.0 ([e709e67](https://github.com/RouHim/beammp-server-beiwagen/commit/e709e67ec1588d3156674ca8e76389b592242c19))
+* **deps:** update rust crate indicatif to 0.17.0-rc.10 ([972907c](https://github.com/RouHim/beammp-server-beiwagen/commit/972907cc213d9caa6bc62ad99bde7b55620c306b))
+* **deps:** update rust crate indicatif to 0.17.0-rc.11 ([90d1120](https://github.com/RouHim/beammp-server-beiwagen/commit/90d1120d02e8fd74b1a9d3dedfbfc251a42c2ddc))
+* **deps:** update rust crate indicatif to 0.17.0-rc.6 ([f93e560](https://github.com/RouHim/beammp-server-beiwagen/commit/f93e560f46f600643740fab3acbac69ee2a4ac37))
+* **deps:** update rust crate indicatif to 0.17.0-rc.8 ([4f1b58d](https://github.com/RouHim/beammp-server-beiwagen/commit/4f1b58d9282254cd6bc2e99196c8a35d71ba8c04))
+* **deps:** update rust crate indicatif to 0.17.0-rc.9 ([6ca2135](https://github.com/RouHim/beammp-server-beiwagen/commit/6ca213575598e35ae9108287110004eb516031bd))
+* **deps:** update rust crate indicatif to 0.17.1 ([34a5a39](https://github.com/RouHim/beammp-server-beiwagen/commit/34a5a393d4912f8b99577fb4281333aa8be9d269))
+* **deps:** update rust crate indicatif to 0.17.2 ([e7c554d](https://github.com/RouHim/beammp-server-beiwagen/commit/e7c554d700a51a1669946f1c03956ab6c7b614fd))
+* **deps:** update rust crate indicatif to 0.17.3 ([7b7c453](https://github.com/RouHim/beammp-server-beiwagen/commit/7b7c453f59022cbbdc1ef272a166fd81cf4f4b68))
+* **deps:** update rust crate indicatif to 0.17.4 ([6fa9b22](https://github.com/RouHim/beammp-server-beiwagen/commit/6fa9b22e3ba6881deba65670310e722ae74270f6))
+* **deps:** update rust crate rayon to 1.6 ([462524f](https://github.com/RouHim/beammp-server-beiwagen/commit/462524f81de416bafae6f9b4d303392f241374e4))
+* **deps:** update rust crate rayon to 1.7 ([b5a615d](https://github.com/RouHim/beammp-server-beiwagen/commit/b5a615d88fa6b719f86d418a75096502cfdd9c5d))
+* **deps:** update rust crate regex to 1.6 ([e9ee301](https://github.com/RouHim/beammp-server-beiwagen/commit/e9ee30113b3d299d7244412fba64af4f868ceeaa))
+* **deps:** update rust crate regex to 1.7 ([a4ac2df](https://github.com/RouHim/beammp-server-beiwagen/commit/a4ac2df9a1105baa6732291d5bbd95ba81dc8921))
+* **deps:** update rust crate regex to 1.8 ([398b65b](https://github.com/RouHim/beammp-server-beiwagen/commit/398b65bac2ed920a3bf226af0efa1742fe87f4c3))
+* **deps:** update rust crate scraper to 0.13 ([398576e](https://github.com/RouHim/beammp-server-beiwagen/commit/398576e4ed3e44b4b61604c88486d611aec122cf))
+* **deps:** update rust crate scraper to 0.14 ([c693013](https://github.com/RouHim/beammp-server-beiwagen/commit/c693013f9dba83ba2bc4544cda3c2e79545c61b1))
+* **deps:** update rust crate scraper to 0.15 ([e7d76d3](https://github.com/RouHim/beammp-server-beiwagen/commit/e7d76d3876ef6e66f156db343a970f58f09e89db))
+* **deps:** update rust crate scraper to 0.16 ([5359479](https://github.com/RouHim/beammp-server-beiwagen/commit/53594791f66c0745823802b288b2565fd0ef3d49))
+* **deps:** update rust crate zip to 0.6 ([dc3f5d8](https://github.com/RouHim/beammp-server-beiwagen/commit/dc3f5d874d46a3476a3e739f85d5c15d4037a015))
+* dev doc ([fc2fd0a](https://github.com/RouHim/beammp-server-beiwagen/commit/fc2fd0ac34bca305cac67a830b1cf352ba8efa00))
+* pipe ([d9bc596](https://github.com/RouHim/beammp-server-beiwagen/commit/d9bc59637f19d5c17724bd9d9480eb4cc3633489))
+* unable to parse zip files ([dc87031](https://github.com/RouHim/beammp-server-beiwagen/commit/dc870312f9bbe47f56458631ee24dc024cd93239))
+
+
+### Features
+
+* **deps:** update deps and move to ureq ([8181308](https://github.com/RouHim/beammp-server-beiwagen/commit/8181308ab0862278027dc64ca2cf97cb9d2fdb06))
