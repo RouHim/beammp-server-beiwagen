@@ -1,22 +1,253 @@
-name: Rust
-
+name: CI/CD
 on:
   push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
+    types:
+      - opened
+  workflow_dispatch: # allow manual execution
 
-env:
-  CARGO_TERM_COLOR: always
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build:
 
+  check-repo:
+    name: Check git repository
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
-      - name: Build
-        run: cargo build
-      - name: Run tests
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'
+
+  check-code-style:
+    name: Check code style
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          components: rustfmt
+
+      - uses: Swatinem/rust-cache@v2 # use /rust/cargo caching
+        with:
+          cache-on-failure: true # upload cache even if there are errors in this step
+
+      - name: Check the code style
+        run: cargo fmt --all -- --check
+
+  check-code:
+    name: Check rust code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          components: clippy
+
+      - uses: Swatinem/rust-cache@v2 # use /rust/cargo caching
+        with:
+          cache-on-failure: true # upload cache even if there are errors in this step
+
+      - name: Verify code
+        run: cargo clippy
+
+  check-unused-dependencies:
+    name: Check for unused deps
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+
+      - uses: Swatinem/rust-cache@v2 # use /rust/cargo caching
+        with:
+          cache-on-failure: true # upload cache even if there are errors in this step
+
+      - uses: cargo-bins/cargo-binstall@main
+      - name: Install cargo-udeps
+        run: cargo binstall --no-confirm --force cargo-udeps
+
+      - name: Analyze dependencies
+        run: cargo update && cargo +nightly udeps
+        continue-on-error: true
+
+  test:
+    name: Run application tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+
+      - uses: Swatinem/rust-cache@v2 # use /rust/cargo caching
+        with:
+          cache-on-failure: true # upload cache even if there are errors in this step
+
+      - name: Run unit tests
         run: cargo test
+
+  compile:
+    name: Compile application
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [ 'x86_64-musl', 'aarch64-musl', 'armv7-musleabihf', 'arm-musleabihf' ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+
+      - uses: Swatinem/rust-cache@v2 # use /rust/cargo caching
+        with:
+          cache-on-failure: true # upload cache even if there are errors in this step
+
+      - name: Build artifacts
+        run: |
+          docker run --rm \
+            -v "$(pwd)":/home/rust/src \
+            messense/rust-musl-cross:${{ matrix.target }} \
+            cargo build --release
+
+  create-release:
+    name: Create new release
+    needs: [ check-repo, check-code-style, check-code, test, compile ]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: |
+          npm install -g \
+             semantic-release  \
+            @semantic-release/git  \
+            @semantic-release/changelog  \
+            @semantic-release/exec \
+            @semantic-release/commit-analyzer \
+            conventional-changelog-conventionalcommits
+
+      - name: Generate Semantic Release Notes and Create Release
+        id: semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: npx semantic-release
+
+      - name: Delete old releases
+        uses: dev-drprasad/delete-older-releases@v0.3.2
+        with:
+          keep_latest: 5
+          delete_tags: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-linux:
+    name: Build linux artifacts
+    needs: [ create-release ]
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [ 'x86_64-musl', 'aarch64-musl', 'armv7-musleabihf', 'arm-musleabihf' ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Detect and set latest github release VERSION
+        shell: bash
+        run: |
+          REPO="RouHim/beammp-server-beiwagen"
+          LATEST_RELEASE=$(curl --silent "https://api.github.com/repos/$REPO/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+          echo "Latest release is $LATEST_RELEASE"
+          echo "VERSION=$LATEST_RELEASE" >> $GITHUB_ENV
+
+      - name: Set UPLOAD_URL variable
+        shell: bash
+        run: |
+          UPLOAD_URL=$(curl --silent https://api.github.com/repos/rouhim/beammp-server-beiwagen/releases/latest | jq -r '.upload_url')
+          echo "UPLOAD_URL=${UPLOAD_URL}" >> $GITHUB_ENV
+
+      - name: Set version to cargo
+        shell: bash
+        run: |
+          sed -i "s/version = \"0.0.0\"/version = \"${{ env.VERSION }}\"/g" Cargo.toml
+          echo "Cargo version is now" $(cargo metadata --no-deps --format-version 1 | jq -r ".packages[0].version")
+
+      - name: Install rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+
+      - uses: Swatinem/rust-cache@v2 # use /rust/cargo caching
+        with:
+          cache-on-failure: true # upload cache even if there are errors in this step
+
+      - name: Build artifacts
+        run: |
+          # Build the binary
+          docker run --rm \
+            -v "$(pwd)":/home/rust/src \
+            messense/rust-musl-cross:${{ matrix.target }} \
+            cargo build --release
+          
+          # Detect and write the target to the environment
+          export CARGO_BUILD_TARGET=$(docker run --rm messense/rust-musl-cross:${{ matrix.target }} env | grep CARGO_BUILD_TARGET | cut -d'=' -f2 | tr -d '\r')
+          echo "Cargo build target is $CARGO_BUILD_TARGET"
+          echo "CARGO_BUILD_TARGET=${CARGO_BUILD_TARGET}" >> $GITHUB_ENV
+          
+          # Take the first part of the target triple and set it to the environment
+          export CPU_TARGET=$(echo $CARGO_BUILD_TARGET | cut -d'-' -f1)
+          echo "CPU_TARGET=${CPU_TARGET}" >> $GITHUB_ENV
+
+
+      - name: Upload artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ env.UPLOAD_URL }}
+          asset_path: target/${{ env.CARGO_BUILD_TARGET }}/release/beammp-server-beiwagen
+          # Updater expects: <asset name>-<semver>-<platform/target>.<extension>
+          asset_name: beammp-server-beiwagen-${{ env.VERSION }}-${{ env.CPU_TARGET }}
+          asset_content_type: application/octet-stream

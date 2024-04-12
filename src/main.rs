@@ -93,7 +93,7 @@ fn analyse_local_mods(local_mods_path: &String) -> HashMap<u64, Resource> {
     let pg_local = ProgressBar::new_spinner().with_message("Analysing local mods");
 
     fs::read_dir(local_mods_path)
-        .unwrap()
+        .unwrap_or_else(|_| panic!("Failed to read local mods directory: {}", local_mods_path))
         .progress_with(pg_local)
         .map(|dir_entry| dir_entry.unwrap())
         .filter(is_zip_file)

@@ -1,6 +1,6 @@
 # beammp-server-beiwagen
 
-This application keeps your **client mods** of the beammp server up to date. 
+This application keeps your **client mods** of the beammp server up to date.
 
 ## Motivation
 
@@ -8,14 +8,9 @@ Everybody knows it, everybody hates it; as soon as you have downloaded the mods 
 
 ## Usage
 
-Iz can download and update all of your desired mods, defined as environment variables. 
-
-> Sadly this is not compilable to ARMv7.
+It can download and update all of your desired mods, defined as environment variables.
 
 ### Parameter
-
-The parameter `BW_CLIENT_MODS_DIR` is already set in the `rouhim/beammp-server` image, if it is used as a standalone
-application it still has to be set manually.
 
 | Name               | Description                                                                       | Default value | Example                    |
 |--------------------|-----------------------------------------------------------------------------------|---------------|----------------------------|
