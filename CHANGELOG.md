@@ -1,3 +1,10 @@
+# [0.3.0](https://github.com/RouHim/beammp-server-beiwagen/compare/0.2.0...0.3.0) (2024-04-23)
+
+
+### Features
+
+* improve error handling and adjust file permissions ([5bbf5a3](https://github.com/RouHim/beammp-server-beiwagen/commit/5bbf5a36422a1ea3f59cd6ff14e1336950f52ae1))
+
 # [0.2.0](https://github.com/RouHim/beammp-server-beiwagen/compare/v0.1.0...0.2.0) (2024-04-12)
 
 
