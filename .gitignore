@@ -2,6 +2,7 @@
 /target/
 **/*.rs.bk
 /target
+run.sh
 
 # Intellij IDE
 .idea

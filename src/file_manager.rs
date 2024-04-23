@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::{Read, Write};
+use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
@@ -17,7 +18,14 @@ pub fn download(
     to_download: &Resource,
 ) {
     // Do a HEAD request to gain meta information about the file to download
-    let head_response = ureq::head(&to_download.download_url).call().unwrap();
+    let head_response = ureq::head(&to_download.download_url)
+        .call()
+        .unwrap_or_else(|error| {
+            panic!(
+                "Failed to do HEAD request for: {} Error:\n{}",
+                &to_download.download_url, error
+            )
+        });
 
     // Determines the absolute file path to download the resource to.
     let resource_file_path = get_absolute_filename(target_dir, &head_response);
@@ -127,9 +135,31 @@ fn download_to_file(url: &str, target_file: &PathBuf, mp: &MultiProgress, visual
 
     // Flush the collected data to a file
     File::create(target_file)
-        .unwrap()
+        .unwrap_or_else(|error| {
+            panic!(
+                "Failed to create file {}: {}",
+                target_file.to_str().unwrap(),
+                error
+            )
+        })
         .write_all(&total_buffer)
-        .unwrap();
+        .unwrap_or_else(|error| {
+            panic!(
+                "Failed to write file {}: {}",
+                target_file.to_str().unwrap(),
+                error
+            )
+        });
+
+    // Change ownership of the file to 777
+    let rwx_permission = std::fs::Permissions::from_mode(0o777);
+    std::fs::set_permissions(target_file, rwx_permission).unwrap_or_else(|error| {
+        panic!(
+            "Failed to set permissions for file {}: {}",
+            target_file.to_str().unwrap(),
+            error
+        )
+    });
 
     dl_bar.finish_and_clear();
 }
