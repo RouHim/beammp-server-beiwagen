@@ -1,3 +1,10 @@
+# [0.8.0](https://github.com/RouHim/beammp-server-beiwagen/compare/0.7.1...0.8.0) (2024-04-27)
+
+
+### Features
+
+* trigger new release to test updater ([2556776](https://github.com/RouHim/beammp-server-beiwagen/commit/25567762c0cc9f50a561452a1352f0f0f130d9dd))
+
 ## [0.7.1](https://github.com/RouHim/beammp-server-beiwagen/compare/0.7.0...0.7.1) (2024-04-27)
 
 
