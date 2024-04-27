@@ -1,3 +1,10 @@
+## [0.7.1](https://github.com/RouHim/beammp-server-beiwagen/compare/0.7.0...0.7.1) (2024-04-27)
+
+
+### Bug Fixes
+
+* **updater:** use cargo build tripple instead of cpu arch ([91463cd](https://github.com/RouHim/beammp-server-beiwagen/commit/91463cd788eb54fae244b7e42de161eb4852a706))
+
 # [0.7.0](https://github.com/RouHim/beammp-server-beiwagen/compare/0.6.0...0.7.0) (2024-04-27)
 
 
