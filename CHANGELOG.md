@@ -1,3 +1,15 @@
+# [0.4.0](https://github.com/RouHim/beammp-server-beiwagen/compare/0.3.1...0.4.0) (2024-04-27)
+
+
+### Bug Fixes
+
+* **updater:** remove windows updater ([e5da93b](https://github.com/RouHim/beammp-server-beiwagen/commit/e5da93bf6492320f3a57be2e5496b501125596a1))
+
+
+### Features
+
+* **updater:** [#42](https://github.com/RouHim/beammp-server-beiwagen/issues/42) add auto-update feature ([c819929](https://github.com/RouHim/beammp-server-beiwagen/commit/c819929cf14e84503fd49f04db7f7fc263bf7488))
+
 ## [0.3.1](https://github.com/RouHim/beammp-server-beiwagen/compare/0.3.0...0.3.1) (2024-04-23)
 
 # [0.3.0](https://github.com/RouHim/beammp-server-beiwagen/compare/0.2.0...0.3.0) (2024-04-23)
