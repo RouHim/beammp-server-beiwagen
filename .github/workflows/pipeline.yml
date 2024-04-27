@@ -181,8 +181,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  build-linux:
-    name: Build linux artifacts
+  build:
+    name: Build artifacts
     needs: [ create-release ]
     strategy:
       fail-fast: false
@@ -249,5 +249,5 @@ jobs:
           upload_url: ${{ env.UPLOAD_URL }}
           asset_path: target/${{ env.CARGO_BUILD_TARGET }}/release/beammp-server-beiwagen
           # Updater expects: <asset name>-<semver>-<platform/target>.<extension>
-          asset_name: beammp-server-beiwagen-${{ env.VERSION }}-${{ env.CPU_TARGET }}
+          asset_name: beiwagen-${{ env.VERSION }}-${{ env.CPU_TARGET }}
           asset_content_type: application/octet-stream

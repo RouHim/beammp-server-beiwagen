@@ -14,6 +14,7 @@ scraper = "0.19"
 rayon = "1.10"
 indicatif = { version = "0.17", features = ["rayon", "improved_unicode"] }
 ureq = "2.9"
+self_update = { version = "0.39.0", features = ["rustls"], default-features = false }   # Self update
 
 [dev-dependencies]
 assertor = "0.0"
