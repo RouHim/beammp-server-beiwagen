@@ -16,9 +16,13 @@ mod online_resource;
 #[cfg(test)]
 mod delta_builder_test;
 mod file_manager;
+mod updater;
 
 fn main() {
     let local_mods_path: String = env::var("BW_CLIENT_MODS_DIR").unwrap_or("mods".to_string());
+
+    // Check for updates
+    updater::update();
 
     let local_mods = analyse_local_mods(&local_mods_path);
 
