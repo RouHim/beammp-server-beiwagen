@@ -1,3 +1,15 @@
+# [0.6.0](https://github.com/RouHim/beammp-server-beiwagen/compare/0.5.0...0.6.0) (2024-04-27)
+
+
+### Bug Fixes
+
+* **updater:** wrong version in cargo toml wont trigger auto version update ([bae5e93](https://github.com/RouHim/beammp-server-beiwagen/commit/bae5e93310cbc7b0cfe1692f4bebce8c463e97c0))
+
+
+### Features
+
+* trigger new release to test updater ([33c14f5](https://github.com/RouHim/beammp-server-beiwagen/commit/33c14f55195f9b5569ca4555bfe7046b39bfbc50))
+
 # [0.5.0](https://github.com/RouHim/beammp-server-beiwagen/compare/0.4.0...0.5.0) (2024-04-27)
 
 
