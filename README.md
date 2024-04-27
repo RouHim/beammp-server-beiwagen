@@ -37,4 +37,3 @@ following values are available:
 
 If a mod maker produces a new version of his mod, and updates the new version only online on the beamng resource page,
 but not in the zip file that is downloaded, you have to download the mod again every time.
-
