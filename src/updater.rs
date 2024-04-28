@@ -12,7 +12,7 @@ pub fn update() {
     // In release mode, don't ask for confirmation
     let no_confirm: bool = !cfg!(debug_assertions);
 
-    let current_exe = env::current_exe().expect("current exe");
+    let current_executable = env::current_exe().expect("current exe");
 
     let status = self_update::backends::github::Update::configure()
         .repo_owner("rouhim")
@@ -32,20 +32,22 @@ pub fn update() {
         }
         Ok(self_update::Status::Updated(version)) => {
             println!("beammp-server-beiwagen updated to {}", version);
-            restart_process(current_exe);
+            restart_process(current_executable);
         }
     }
 }
 
 /// Restarts the current process
-fn restart_process(current_exe: PathBuf) {
-    println!("Waiting 5s before restarting {:?} ...", current_exe);
+fn restart_process(current_executable: PathBuf) {
+    println!("Waiting 5s before restarting {:?} ...", current_executable);
     thread::sleep(Duration::from_secs(5));
-    let err = exec(process::Command::new(current_exe).args(std::env::args().skip(1)));
+    let err = exec(process::Command::new(current_executable).args(std::env::args().skip(1)));
     panic!("Failed to restart: {}", err);
 }
 
 /// Replaces the current process with a new one
+/// This function is only available on Unix platforms
+#[cfg(unix)]
 fn exec(command: &mut process::Command) -> io::Error {
     use std::os::unix::process::CommandExt as _;
     // Completely replace the current process image. If successful, execution
