@@ -13,7 +13,7 @@ lazy_static = "1.4"
 scraper = "0.19"
 rayon = "1.10"
 indicatif = { version = "0.17", features = ["rayon", "improved_unicode"] }
-ureq = "2.9"
+ureq = "2.9.7"
 self_update = { version = "0.40.0", features = ["rustls"], default-features = false }
 argh = "0.1"
 toml = "0.8.12"
