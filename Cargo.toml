@@ -15,7 +15,7 @@ rayon = "1.10"
 indicatif = { version = "0.17", features = ["rayon", "improved_unicode"] }
 ureq = "2.9"
 self_update = { version = "0.40.0", features = ["rustls"], default-features = false }
-argh = "0.1"
+argh = "0.1.12"
 toml = "0.8.12"
 
 [dev-dependencies]
