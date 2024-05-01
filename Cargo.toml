@@ -19,7 +19,7 @@ argh = "0.1"
 toml = "0.8.12"
 
 [dev-dependencies]
-assertor = "0.0"
+assertor = "0.0.2"
 pretty_assertions = "1.4"
 rand = "0.8.5"
 
