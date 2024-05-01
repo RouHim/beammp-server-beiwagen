@@ -9,39 +9,66 @@ use indicatif::{
 };
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
-mod delta_builder;
-mod local_resource;
-mod online_resource;
-
+#[cfg(test)]
+mod config_test;
 #[cfg(test)]
 mod delta_builder_test;
+#[cfg(test)]
+mod online_resource_test;
+
+mod config;
+mod delta_builder;
 mod file_manager;
+mod local_resource;
+mod online_resource;
 mod updater;
 
-fn main() {
-    let local_mods_path: String = env::var("BW_CLIENT_MODS_DIR").unwrap_or("mods".to_string());
+use config::AppConfig;
 
-    // Check for updates
+fn main() {
+    // Check for updates, if available, update the binary and restart
     updater::update();
 
-    let local_mods = analyse_local_mods(&local_mods_path);
+    // Parse the command line arguments
+    let args: AppConfig = config::parse_args();
 
+    let local_mods_path = args.client_mods_dir.unwrap();
+    let local_mods = analyse_local_mods(&local_mods_path);
     let online_mods_string = fetch_online_information();
 
-    download_mods(&local_mods_path, &local_mods, &online_mods_string);
+    let delta_builder = delta_builder::DeltaBuilder {
+        unsupported: config::parse_delta_action(&args.unsupported),
+        outdated: config::parse_delta_action(&args.outdated),
+    };
 
-    delete_obsolete(&local_mods_path, &local_mods, &online_mods_string);
+    // Download or update mods
+    download_mods(
+        &delta_builder,
+        &local_mods_path,
+        &local_mods,
+        &online_mods_string,
+    );
+
+    // Delete obsolete mods
+    delete_obsolete(
+        &delta_builder,
+        &local_mods_path,
+        &local_mods,
+        &online_mods_string,
+    );
 }
 
 /// Deletes no longer needed mods
 fn delete_obsolete(
+    delta_builder: &delta_builder::DeltaBuilder,
     local_mods_path: &String,
     local_mods: &HashMap<u64, Resource>,
     online_mods_string: &HashMap<u64, Resource>,
 ) {
     let pg_delete = ProgressBar::new_spinner().with_message("Deleting obsolete mods");
 
-    delta_builder::get_to_remove(local_mods, online_mods_string)
+    delta_builder
+        .get_to_remove(local_mods, online_mods_string)
         .iter()
         .progress_with(pg_delete)
         // .inspect(|resource| println!(" - {}", resource))
@@ -50,11 +77,12 @@ fn delete_obsolete(
 
 /// Evaluates which mods needs to be downloaded or updated and downloads them
 fn download_mods(
+    delta_builder: &delta_builder::DeltaBuilder,
     local_mods_path: &String,
     local_mods: &HashMap<u64, Resource>,
     online_mods_string: &HashMap<u64, Resource>,
 ) {
-    let to_download = delta_builder::get_to_download(local_mods, online_mods_string);
+    let to_download = delta_builder.get_to_download(local_mods, online_mods_string);
 
     let multi_progress_bar = MultiProgress::new();
     let pb_download = multi_progress_bar.add(
