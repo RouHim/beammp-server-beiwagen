@@ -1,3 +1,10 @@
+# [0.9.0](https://github.com/RouHim/beammp-server-beiwagen/compare/0.8.2...0.9.0) (2024-05-01)
+
+
+### Features
+
+* **config:** added new config optoins ([23fa29d](https://github.com/RouHim/beammp-server-beiwagen/commit/23fa29d5fbf924326889a59668c4846a2bfc35af))
+
 ## [0.8.2](https://github.com/RouHim/beammp-server-beiwagen/compare/0.8.1...0.8.2) (2024-04-29)
 
 ## [0.8.1](https://github.com/RouHim/beammp-server-beiwagen/compare/0.8.0...0.8.1) (2024-04-27)
