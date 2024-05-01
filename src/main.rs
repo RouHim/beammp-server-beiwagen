@@ -2,7 +2,7 @@ extern crate core;
 
 use std::collections::HashMap;
 use std::fs::DirEntry;
-use std::{env, fmt, fs};
+use std::{fmt, fs};
 
 use indicatif::{
     MultiProgress, ParallelProgressIterator, ProgressBar, ProgressIterator, ProgressStyle,
@@ -34,7 +34,7 @@ fn main() {
 
     let local_mods_path = args.client_mods_dir.unwrap();
     let local_mods = analyse_local_mods(&local_mods_path);
-    let online_mods_string = fetch_online_information();
+    let online_mods_string = fetch_online_information(&args.mods);
 
     let delta_builder = delta_builder::DeltaBuilder {
         unsupported: config::parse_delta_action(&args.unsupported),
@@ -102,14 +102,8 @@ fn download_mods(
 }
 
 /// Reads desired mod list from env ($BW_MODS) and looks-it-up on beamng.com/resources
-fn fetch_online_information() -> HashMap<u64, Resource> {
+fn fetch_online_information(wanted_mods: &Vec<String>) -> HashMap<u64, Resource> {
     let pg_remote = ProgressBar::new_spinner().with_message("Fetching remote information");
-
-    let wanted_mods: Vec<String> = env::var("BW_MODS")
-        .expect("BW_MODS env var not found")
-        .split(',')
-        .map(|entry| entry.to_string())
-        .collect();
 
     wanted_mods
         .par_iter()
