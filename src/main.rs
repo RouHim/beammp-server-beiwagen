@@ -107,7 +107,7 @@ fn fetch_online_information(wanted_mods: &Vec<String>) -> HashMap<u64, Resource>
         .with_message("Fetching remote information")
         .with_style(
             ProgressStyle::default_bar()
-                .template("{msg} {pos}/{len}")
+                .template("{msg}: {pos}/{len}")
                 .unwrap(),
         );
 
