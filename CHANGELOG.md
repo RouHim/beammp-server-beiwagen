@@ -1,3 +1,10 @@
+## [0.9.1](https://github.com/RouHim/beammp-server-beiwagen/compare/0.9.0...0.9.1) (2024-05-01)
+
+
+### Bug Fixes
+
+* **mods:** replace wrong env var usage with config usage ([5ba2f73](https://github.com/RouHim/beammp-server-beiwagen/commit/5ba2f73d63d3bd06d8273df9bb345b4a24e03843))
+
 # [0.9.0](https://github.com/RouHim/beammp-server-beiwagen/compare/0.8.2...0.9.0) (2024-05-01)
 
 
