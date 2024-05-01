@@ -89,7 +89,7 @@ fn download_mods(
         ProgressBar::new(to_download.len() as u64)
             .with_style(
                 ProgressStyle::default_bar()
-                    .template("{msg} {pos}/{len}")
+                    .template("{msg}: {pos}/{len}")
                     .unwrap(),
             )
             .with_message("Downloading missing or updated"),
@@ -101,9 +101,15 @@ fn download_mods(
     pb_download.finish_and_clear();
 }
 
-/// Reads desired mod list from env ($BW_MODS) and looks-it-up on beamng.com/resources
+/// Reads desired mod list and looks-it-up on beamng.com/resources
 fn fetch_online_information(wanted_mods: &Vec<String>) -> HashMap<u64, Resource> {
-    let pg_remote = ProgressBar::new_spinner().with_message("Fetching remote information");
+    let pg_remote = ProgressBar::new(wanted_mods.len() as u64)
+        .with_message("Fetching remote information")
+        .with_style(
+            ProgressStyle::default_bar()
+                .template("{msg} {pos}/{len}")
+                .unwrap(),
+        );
 
     wanted_mods
         .par_iter()
