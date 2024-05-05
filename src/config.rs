@@ -89,11 +89,7 @@ pub fn parse_args() -> AppConfig {
 /// ```
 pub fn from_config_file(path: &str) -> AppConfig {
     // Read the config file, from the same directory as the executable.
-    let path = std::env::current_exe()
-        .unwrap()
-        .parent()
-        .unwrap()
-        .join(path);
+    let path = env::current_exe().unwrap().parent().unwrap().join(path);
     let config_file = fs::read_to_string(path).ok();
     if let Some(config_file) = config_file {
         let mut toml_config: AppConfig = toml::from_str(&config_file)

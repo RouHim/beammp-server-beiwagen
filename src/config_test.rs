@@ -121,6 +121,13 @@ fn test_invalid_mods_urls() {
 }
 
 fn random_file_name() -> String {
-    fs::create_dir_all("tests").unwrap();
-    format!("tests/{}.toml", rand::random::<u64>())
+    let file_name = format!("{}.toml", rand::random::<u64>());
+    env::current_exe()
+        .unwrap()
+        .parent()
+        .unwrap()
+        .join(file_name)
+        .to_str()
+        .unwrap()
+        .to_string()
 }
