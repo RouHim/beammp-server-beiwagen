@@ -1,3 +1,16 @@
+# [0.10.0](https://github.com/RouHim/beammp-server-beiwagen/compare/0.9.1...0.10.0) (2024-05-05)
+
+
+### Bug Fixes
+
+* **tests:** broken config path ([b87ad4a](https://github.com/RouHim/beammp-server-beiwagen/commit/b87ad4a30884680f99bd1feb062d1768004ce980))
+
+
+### Features
+
+* **spinner:** add progress indicator for fething remote resources ([0761743](https://github.com/RouHim/beammp-server-beiwagen/commit/07617430debfa710b8da068adefdaeef0299131e))
+* **spinner:** improve pg style ([8f34a75](https://github.com/RouHim/beammp-server-beiwagen/commit/8f34a75c4e095ce135bff84ce5b0861b3cd804f7))
+
 ## [0.9.1](https://github.com/RouHim/beammp-server-beiwagen/compare/0.9.0...0.9.1) (2024-05-01)
 
 
