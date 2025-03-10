@@ -1,3 +1,5 @@
+## [0.10.69](https://github.com/RouHim/beammp-server-beiwagen/compare/0.10.68...0.10.69) (2025-03-10)
+
 ## [0.10.68](https://github.com/RouHim/beammp-server-beiwagen/compare/0.10.67...0.10.68) (2025-03-03)
 
 ## [0.10.67](https://github.com/RouHim/beammp-server-beiwagen/compare/0.10.66...0.10.67) (2025-02-24)
