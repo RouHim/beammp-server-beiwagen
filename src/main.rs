@@ -1,13 +1,13 @@
 extern crate core;
 
-use std::collections::HashMap;
-use std::fs::DirEntry;
-use std::{fmt, fs};
-
 use indicatif::{
     MultiProgress, ParallelProgressIterator, ProgressBar, ProgressIterator, ProgressStyle,
 };
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use std::collections::HashMap;
+use std::fs::DirEntry;
+use std::path::PathBuf;
+use std::{fmt, fs};
 
 #[cfg(test)]
 mod config_test;
@@ -25,14 +25,15 @@ mod updater;
 
 use config::AppConfig;
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Check for updates, if available, update the binary and restart
     updater::update();
 
     // Parse the command line arguments
     let args: AppConfig = config::parse_args();
 
-    let local_mods_path = args.client_mods_dir.unwrap();
+    let result = shellexpand::full(&args.client_mods_dir.unwrap())?.into_owned();
+    let local_mods_path = PathBuf::from(result);
     let local_mods = analyse_local_mods(&local_mods_path);
     let online_mods_string = fetch_online_information(&args.mods);
 
@@ -56,12 +57,13 @@ fn main() {
         &local_mods,
         &online_mods_string,
     );
+    Ok(())
 }
 
 /// Deletes no longer needed mods
 fn delete_obsolete(
     delta_builder: &delta_builder::DeltaBuilder,
-    local_mods_path: &String,
+    local_mods_path: &PathBuf,
     local_mods: &HashMap<u64, Resource>,
     online_mods_string: &HashMap<u64, Resource>,
 ) {
@@ -78,7 +80,7 @@ fn delete_obsolete(
 /// Evaluates which mods needs to be downloaded or updated and downloads them
 fn download_mods(
     delta_builder: &delta_builder::DeltaBuilder,
-    local_mods_path: &String,
+    local_mods_path: &PathBuf,
     local_mods: &HashMap<u64, Resource>,
     online_mods_string: &HashMap<u64, Resource>,
 ) {
@@ -121,11 +123,16 @@ fn fetch_online_information(wanted_mods: &Vec<String>) -> HashMap<u64, Resource>
 }
 
 /// Reads all available mods from the local mods directory
-fn analyse_local_mods(local_mods_path: &String) -> HashMap<u64, Resource> {
+fn analyse_local_mods(local_mods_path: &PathBuf) -> HashMap<u64, Resource> {
     let pg_local = ProgressBar::new_spinner().with_message("Analysing local mods");
-
     fs::read_dir(local_mods_path)
-        .unwrap_or_else(|_| panic!("Failed to read local mods directory: {}", local_mods_path))
+        .unwrap_or_else(|error| {
+            panic!(
+                "Failed to read local mods directory: {} error: {}",
+                local_mods_path.display(),
+                error
+            )
+        })
         .progress_with(pg_local)
         .map(|dir_entry| dir_entry.unwrap())
         .filter(is_zip_file)

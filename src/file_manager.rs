@@ -14,7 +14,7 @@ use crate::Resource;
 pub fn download(
     mp: &MultiProgress,
     pb_download: &ProgressBar,
-    target_dir: &String,
+    target_dir: &PathBuf,
     to_download: &Resource,
 ) {
     // Do a HEAD request to gain meta information about the file to download
@@ -44,7 +44,7 @@ pub fn download(
 /// Determines the file name of the online resource http header response.
 ///
 /// If the header does not contain the filename, parse it from the resolved url
-fn get_absolute_filename(target_dir: &String, head_response: &Response) -> PathBuf {
+fn get_absolute_filename(target_dir: &PathBuf, head_response: &Response) -> PathBuf {
     let contains = head_response
         .headers_names()
         .contains(&"content-disposition".to_string());
@@ -55,9 +55,7 @@ fn get_absolute_filename(target_dir: &String, head_response: &Response) -> PathB
         get_filename_from_url(head_response.get_url())
     };
 
-    let mut resource_file_path = PathBuf::from(&target_dir);
-    resource_file_path.push(&filename);
-    resource_file_path
+    target_dir.join(&filename)
 }
 
 /// Parses the filename from the `content-disposition` header attribute value.
@@ -82,10 +80,9 @@ fn get_filename_from_url(url_string: &str) -> String {
     caps.name("filename").unwrap().as_str().to_string()
 }
 
-/// Deletes the specified `to_delete` resource file located in the the passed `target_dir`.
-pub fn delete(target_dir: &String, to_delete: &Resource) {
-    let mut resource_file_path = PathBuf::from(&target_dir);
-    resource_file_path.push(&to_delete.filename);
+/// Deletes the specified `to_delete` resource file located in the passed `target_dir`.
+pub fn delete(target_dir: &PathBuf, to_delete: &Resource) {
+    let resource_file_path = target_dir.join(&to_delete.filename);
     std::fs::remove_file(&resource_file_path).unwrap_or_else(|_| {
         panic!(
             "error deleting file {}",
