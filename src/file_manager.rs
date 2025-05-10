@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{Read, Write};
+use std::io::{copy, BufWriter, Read, Write};
 use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 
@@ -11,6 +11,7 @@ use ureq::Response;
 use crate::Resource;
 
 /// Downloads a resource to the specified directory.
+
 pub fn download(
     mp: &MultiProgress,
     pb_download: &ProgressBar,

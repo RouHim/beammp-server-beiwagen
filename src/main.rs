@@ -3,12 +3,11 @@ extern crate core;
 use indicatif::{
     MultiProgress, ParallelProgressIterator, ProgressBar, ProgressIterator, ProgressStyle,
 };
-use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use rayon::iter::ParallelIterator;
 use std::collections::HashMap;
 use std::fs::DirEntry;
 use std::path::PathBuf;
 use std::{fmt, fs};
-
 #[cfg(test)]
 mod config_test;
 #[cfg(test)]
@@ -32,8 +31,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Parse the command line arguments
     let args: AppConfig = config::parse_args();
 
-    let result = shellexpand::full(&args.client_mods_dir.unwrap())?.into_owned();
-    let local_mods_path = PathBuf::from(result);
+    let local_mods_path = PathBuf::from(args.client_mods_dir.unwrap());
     let local_mods = analyse_local_mods(&local_mods_path);
     let online_mods_string = fetch_online_information(&args.mods);
 
@@ -97,7 +95,7 @@ fn download_mods(
             .with_message("Downloading missing or updated"),
     );
 
-    to_download.par_iter().for_each(|resource| {
+    to_download.iter().for_each(|resource| {
         file_manager::download(&multi_progress_bar, &pb_download, local_mods_path, resource)
     });
     pb_download.finish_and_clear();
@@ -114,7 +112,7 @@ fn fetch_online_information(wanted_mods: &Vec<String>) -> HashMap<u64, Resource>
         );
 
     wanted_mods
-        .par_iter()
+        .iter()
         .progress_with(pg_remote)
         .filter_map(|mod_id| online_resource::read(mod_id))
         // .inspect(|resource| println!(" - {}", resource))
@@ -126,11 +124,10 @@ fn fetch_online_information(wanted_mods: &Vec<String>) -> HashMap<u64, Resource>
 fn analyse_local_mods(local_mods_path: &PathBuf) -> HashMap<u64, Resource> {
     let pg_local = ProgressBar::new_spinner().with_message("Analysing local mods");
     fs::read_dir(local_mods_path)
-        .unwrap_or_else(|error| {
+        .unwrap_or_else(|_| {
             panic!(
-                "Failed to read local mods directory: {} error: {}",
-                local_mods_path.display(),
-                error
+                "Failed to read local mods directory: {}",
+                local_mods_path.display()
             )
         })
         .progress_with(pg_local)

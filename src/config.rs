@@ -43,7 +43,7 @@ pub fn parse_args() -> AppConfig {
     mods.extend(config_file_config.mods.clone());
 
     // We merge the three configurations, env > cli > file
-    let merged_config = AppConfig {
+    let mut merged_config = AppConfig {
         client_mods_dir: env_var_config
             .client_mods_dir
             .or(cli_args_config.client_mods_dir)
@@ -70,6 +70,16 @@ pub fn parse_args() -> AppConfig {
         eprintln!("Error: mods is required.");
         std::process::exit(1);
     }
+
+    // Parse tilde in the client_mods_dir
+    merged_config.client_mods_dir = merged_config.client_mods_dir.map(|client_mods_dir| {
+        if client_mods_dir.contains("~") {
+            let home_dir = env::var("HOME").unwrap_or_else(|_| String::from("/"));
+            client_mods_dir.replace("~", &home_dir)
+        } else {
+            client_mods_dir
+        }
+    });
 
     merged_config
 }
