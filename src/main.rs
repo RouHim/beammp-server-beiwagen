@@ -1,13 +1,13 @@
 extern crate core;
 
-use std::collections::HashMap;
-use std::fs::DirEntry;
-use std::{fmt, fs};
-
 use indicatif::{
     MultiProgress, ParallelProgressIterator, ProgressBar, ProgressIterator, ProgressStyle,
 };
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use std::collections::HashMap;
+use std::fs::DirEntry;
+use std::path::{Path, PathBuf};
+use std::{fmt, fs};
 
 #[cfg(test)]
 mod config_test;
@@ -25,14 +25,14 @@ mod updater;
 
 use config::AppConfig;
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Check for updates, if available, update the binary and restart
     updater::update();
 
     // Parse the command line arguments
     let args: AppConfig = config::parse_args();
 
-    let local_mods_path = args.client_mods_dir.unwrap();
+    let local_mods_path = PathBuf::from(args.client_mods_dir.unwrap());
     let local_mods = analyse_local_mods(&local_mods_path);
     let online_mods_string = fetch_online_information(&args.mods);
 
@@ -56,12 +56,13 @@ fn main() {
         &local_mods,
         &online_mods_string,
     );
+    Ok(())
 }
 
 /// Deletes no longer needed mods
 fn delete_obsolete(
     delta_builder: &delta_builder::DeltaBuilder,
-    local_mods_path: &String,
+    local_mods_path: &PathBuf,
     local_mods: &HashMap<u64, Resource>,
     online_mods_string: &HashMap<u64, Resource>,
 ) {
@@ -78,7 +79,7 @@ fn delete_obsolete(
 /// Evaluates which mods needs to be downloaded or updated and downloads them
 fn download_mods(
     delta_builder: &delta_builder::DeltaBuilder,
-    local_mods_path: &String,
+    local_mods_path: &Path,
     local_mods: &HashMap<u64, Resource>,
     online_mods_string: &HashMap<u64, Resource>,
 ) {
@@ -97,12 +98,13 @@ fn download_mods(
 
     to_download.par_iter().for_each(|resource| {
         file_manager::download(&multi_progress_bar, &pb_download, local_mods_path, resource)
+            .unwrap_or_else(|_| eprintln!("error downloading file {}", resource.download_url));
     });
     pb_download.finish_and_clear();
 }
 
 /// Reads desired mod list and looks-it-up on beamng.com/resources
-fn fetch_online_information(wanted_mods: &Vec<String>) -> HashMap<u64, Resource> {
+fn fetch_online_information(wanted_mods: &[String]) -> HashMap<u64, Resource> {
     let pg_remote = ProgressBar::new(wanted_mods.len() as u64)
         .with_message("Fetching remote information")
         .with_style(
@@ -121,11 +123,15 @@ fn fetch_online_information(wanted_mods: &Vec<String>) -> HashMap<u64, Resource>
 }
 
 /// Reads all available mods from the local mods directory
-fn analyse_local_mods(local_mods_path: &String) -> HashMap<u64, Resource> {
+fn analyse_local_mods(local_mods_path: &PathBuf) -> HashMap<u64, Resource> {
     let pg_local = ProgressBar::new_spinner().with_message("Analysing local mods");
-
     fs::read_dir(local_mods_path)
-        .unwrap_or_else(|_| panic!("Failed to read local mods directory: {}", local_mods_path))
+        .unwrap_or_else(|_| {
+            panic!(
+                "Failed to read local mods directory: {}",
+                local_mods_path.display()
+            )
+        })
         .progress_with(pg_local)
         .map(|dir_entry| dir_entry.unwrap())
         .filter(is_zip_file)

@@ -126,6 +126,7 @@ dependencies = [
  "colour",
  "indicatif",
  "lazy_static",
+ "log",
  "pretty_assertions",
  "rand",
  "rayon",

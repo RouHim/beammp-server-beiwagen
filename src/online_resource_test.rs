@@ -27,7 +27,7 @@ fn test_read_non_existent_mod() {
 #[test]
 fn test_read_existing_mod() {
     // GIVEN a mod_id for a mod that exists
-    let mod_id = "1362"; // Replace with a mod_id that exists
+    let mod_id = "1362";
 
     // WHEN the function is called
     let resource = online_resource::read(mod_id);
@@ -35,5 +35,6 @@ fn test_read_existing_mod() {
     // THEN it should return a Resource
     assert!(resource.is_some());
     let resource = resource.unwrap();
+    println!("Resource: {:?}", resource);
     assert_eq!(resource.id, 1362);
 }
