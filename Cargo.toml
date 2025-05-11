@@ -18,7 +18,6 @@ self_update = { version = "0.42.0", features = ["rustls"], default-features = fa
 argh = "0.1"
 toml = "0.8.12"
 log = "0.4.21"
-shellexpand = "3.1.1"
 
 [dev-dependencies]
 assertor = "0.0"
