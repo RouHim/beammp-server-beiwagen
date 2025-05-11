@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{copy, BufWriter, Read, Write};
+use std::io::{Read, Write};
 use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 
@@ -11,13 +11,13 @@ use ureq::Response;
 use crate::Resource;
 
 /// Downloads a resource to the specified directory.
-
 pub fn download(
-    mp: &MultiProgress,
+    multiprogress_bar: &MultiProgress,
     pb_download: &ProgressBar,
     target_dir: &PathBuf,
     to_download: &Resource,
 ) {
+    // TODO: Define proper user agent
     // Do a HEAD request to gain meta information about the file to download
     let head_response = ureq::head(&to_download.download_url)
         .call()
@@ -28,14 +28,15 @@ pub fn download(
             )
         });
 
-    // Determines the absolute file path to download the resource to.
-    let resource_file_path = get_absolute_filename(target_dir, &head_response);
+    // Determines the absolute target file path to download the resource to.
+    let target_file = build_target_filename(target_dir, &head_response);
 
     // Actually download the file
+    let resolved_url = head_response.get_url();
     download_to_file(
-        head_response.get_url(),
-        &resource_file_path,
-        mp,
+        resolved_url,
+        &target_file,
+        multiprogress_bar,
         to_download.name.clone(),
     );
 
@@ -45,7 +46,7 @@ pub fn download(
 /// Determines the file name of the online resource http header response.
 ///
 /// If the header does not contain the filename, parse it from the resolved url
-fn get_absolute_filename(target_dir: &PathBuf, head_response: &Response) -> PathBuf {
+fn build_target_filename(target_dir: &PathBuf, head_response: &Response) -> PathBuf {
     let contains = head_response
         .headers_names()
         .contains(&"content-disposition".to_string());
