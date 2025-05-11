@@ -56,6 +56,13 @@ pub fn download(
         dl_bar.set_position(total_downloaded);
     }
 
+    // Verify that the total downloaded bytes match the expected Content-Length
+    if total_downloaded != content_size {
+        return Err(format!(
+            "Download incomplete: expected {} bytes, but only {} bytes were downloaded.",
+            content_size, total_downloaded
+        ).into());
+    }
     // Set secure file permissions
     let rw_permission = std::fs::Permissions::from_mode(0o644);
     std::fs::set_permissions(target_file, rw_permission)?;
