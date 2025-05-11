@@ -13,16 +13,15 @@ lazy_static = "1.4"
 scraper = "0.23"
 rayon = "1.10"
 indicatif = { version = "0.17", features = ["rayon", "improved_unicode"] }
-ureq = "2.9"
+ureq = "3.0"
 self_update = { version = "0.42.0", features = ["rustls"], default-features = false }
 argh = "0.1"
 toml = "0.8.12"
-log = "0.4.21"
 
 [dev-dependencies]
 assertor = "0.0"
 pretty_assertions = "1.4"
-rand = "0.8.5"
+rand = "0.9.1"
 
 [profile.release]
 panic = "abort" # Strip expensive panic clean-up logic

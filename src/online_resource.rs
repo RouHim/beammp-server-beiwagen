@@ -7,7 +7,7 @@ use crate::Resource;
 pub fn read(mod_id: &str) -> Option<Resource> {
     let mod_url = format!("https://www.beamng.com/resources/{}", mod_id);
 
-    let response = match ureq::get(&mod_url).call() {
+    let mut response = match ureq::get(&mod_url).call() {
         Ok(response) => response,
         Err(error) => {
             red_ln!("Could not find Mod {}: {}", mod_id, error.to_string());
@@ -15,7 +15,7 @@ pub fn read(mod_id: &str) -> Option<Resource> {
         }
     };
 
-    let response_html = response.into_string().unwrap();
+    let response_html = response.body_mut().read_to_string().unwrap();
     let document = Html::parse_document(response_html.as_str());
 
     let id: u64 = mod_id.parse().unwrap();
