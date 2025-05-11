@@ -61,7 +61,8 @@ pub fn download(
         return Err(format!(
             "Download incomplete: expected {} bytes, but only {} bytes were downloaded.",
             content_size, total_downloaded
-        ).into());
+        )
+        .into());
     }
     // Set secure file permissions
     let rw_permission = std::fs::Permissions::from_mode(0o644);
