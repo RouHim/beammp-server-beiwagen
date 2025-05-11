@@ -1,3 +1,15 @@
+# [0.11.0](https://github.com/RouHim/beammp-server-beiwagen/compare/0.10.71...0.11.0) (2025-05-11)
+
+
+### Bug Fixes
+
+* repair download function and streamline error handling ([f81f0c3](https://github.com/RouHim/beammp-server-beiwagen/commit/f81f0c37eb97d247e419982313bb3ee9c0006bed))
+
+
+### Features
+
+* enhance client mods directory handling and improve download logic ([bce3e47](https://github.com/RouHim/beammp-server-beiwagen/commit/bce3e47fea7b67ee8a6a3be2f4a088bfe10742f8))
+
 ## [0.10.71](https://github.com/RouHim/beammp-server-beiwagen/compare/0.10.70...0.10.71) (2025-04-29)
 
 ## [0.10.70](https://github.com/RouHim/beammp-server-beiwagen/compare/0.10.69...0.10.70) (2025-04-26)
