@@ -1,3 +1,10 @@
+## [0.11.1](https://github.com/RouHim/beammp-server-beiwagen/compare/0.11.0...0.11.1) (2025-05-11)
+
+
+### Bug Fixes
+
+* update download function to use new ureq API and improve error handling ([aef1ef2](https://github.com/RouHim/beammp-server-beiwagen/commit/aef1ef23d3ad5a11b428562da97e6a6b3df497cb))
+
 # [0.11.0](https://github.com/RouHim/beammp-server-beiwagen/compare/0.10.71...0.11.0) (2025-05-11)
 
 
