@@ -3,11 +3,12 @@ extern crate core;
 use indicatif::{
     MultiProgress, ParallelProgressIterator, ProgressBar, ProgressIterator, ProgressStyle,
 };
-use rayon::iter::ParallelIterator;
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use std::collections::HashMap;
 use std::fs::DirEntry;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::{fmt, fs};
+
 #[cfg(test)]
 mod config_test;
 #[cfg(test)]
@@ -78,7 +79,7 @@ fn delete_obsolete(
 /// Evaluates which mods needs to be downloaded or updated and downloads them
 fn download_mods(
     delta_builder: &delta_builder::DeltaBuilder,
-    local_mods_path: &PathBuf,
+    local_mods_path: &Path,
     local_mods: &HashMap<u64, Resource>,
     online_mods_string: &HashMap<u64, Resource>,
 ) {
@@ -95,14 +96,15 @@ fn download_mods(
             .with_message("Downloading missing or updated"),
     );
 
-    to_download.iter().for_each(|resource| {
+    to_download.par_iter().for_each(|resource| {
         file_manager::download(&multi_progress_bar, &pb_download, local_mods_path, resource)
+            .unwrap_or_else(|_| eprintln!("error downloading file {}", resource.download_url));
     });
     pb_download.finish_and_clear();
 }
 
 /// Reads desired mod list and looks-it-up on beamng.com/resources
-fn fetch_online_information(wanted_mods: &Vec<String>) -> HashMap<u64, Resource> {
+fn fetch_online_information(wanted_mods: &[String]) -> HashMap<u64, Resource> {
     let pg_remote = ProgressBar::new(wanted_mods.len() as u64)
         .with_message("Fetching remote information")
         .with_style(
@@ -112,7 +114,7 @@ fn fetch_online_information(wanted_mods: &Vec<String>) -> HashMap<u64, Resource>
         );
 
     wanted_mods
-        .iter()
+        .par_iter()
         .progress_with(pg_remote)
         .filter_map(|mod_id| online_resource::read(mod_id))
         // .inspect(|resource| println!(" - {}", resource))

@@ -9,7 +9,7 @@ use zip::ZipArchive;
 
 use crate::Resource;
 
-/// Retrieves all meta information of an local mod resource by the passed `mod_file`.
+/// Retrieves all meta information of a local mod resource by the passed `mod_file`.
 pub fn read(mod_file: PathBuf) -> Option<Resource> {
     let json_string = read_mod_info(&mod_file);
 
@@ -24,7 +24,7 @@ pub fn read(mod_file: PathBuf) -> Option<Resource> {
 
     let info_json: Value = serde_json::from_str(&json_string.unwrap()).unwrap();
 
-    return Some(Resource {
+    Some(Resource {
         id: info_json["resource_id"].as_u64().unwrap(),
         tag_id: info_json["tagid"].as_str().unwrap().to_string(),
         name: info_json["title"].as_str().unwrap().to_string(),
@@ -32,7 +32,7 @@ pub fn read(mod_file: PathBuf) -> Option<Resource> {
         prefix: info_json["prefix_title"].as_str().unwrap().to_string(),
         filename: info_json["filename"].as_str().unwrap().to_string(),
         download_url: "".to_string(),
-    });
+    })
 }
 
 /// Extracts all mod metadata out of the local `mod_file` zip.
