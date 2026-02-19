@@ -12,7 +12,7 @@ colour = "2.0"
 lazy_static = "1.4"
 scraper = "0.25"
 rayon = "1.10"
-indicatif = { version = "0.17", features = ["rayon", "improved_unicode"] }
+indicatif = { version = "0.18", features = ["rayon", "improved_unicode"] }
 ureq = "3.0"
 self_update = { version = "0.42.0", features = ["rustls"], default-features = false }
 argh = "0.1"
