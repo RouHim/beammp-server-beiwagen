@@ -88,8 +88,7 @@ fn find_file_path(
         let path = entry.enclosed_name().unwrap();
         let name = path.to_str().unwrap();
 
-        if info_json_pattern.is_match(name) {
-        }
+        if info_json_pattern.is_match(name) {}
     }
 
     Err(())
