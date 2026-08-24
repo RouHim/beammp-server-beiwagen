@@ -85,11 +85,10 @@ fn find_file_path(
 
     for idx in 0..archive.len() {
         let entry = archive.by_index(idx).unwrap();
-        let name = entry.enclosed_name();
-        let full_name = name.unwrap().to_str().unwrap();
+        let path = entry.enclosed_name().unwrap();
+        let name = path.to_str().unwrap();
 
-        if info_json_pattern.is_match(full_name) {
-            return Ok(full_name.to_string());
+        if info_json_pattern.is_match(name) {
         }
     }
 
